@@ -259,3 +259,29 @@ create index if not exists idx_questions_test on questions(test_id, "order");
 create index if not exists idx_answers_question on answers(question_id, "order");
 create index if not exists idx_discussions_course on discussions(course_id, created_at desc);
 create index if not exists idx_comments_discussion on comments(discussion_id, created_at asc);
+
+-- ========================================================
+-- Row Level Security (RLS) - Best Practice & Hardening
+-- ========================================================
+-- Enabling RLS locks down anonymous public access.
+-- The FastAPI backend connects using service_role key, which
+-- automatically bypasses RLS and maintains full access.
+
+alter table if exists users enable row level security;
+alter table if exists profiles enable row level security;
+alter table if exists user_sessions enable row level security;
+alter table if exists courses enable row level security;
+alter table if exists materials enable row level security;
+alter table if exists videos enable row level security;
+alter table if exists manual_books enable row level security;
+alter table if exists tests enable row level security;
+alter table if exists questions enable row level security;
+alter table if exists answers enable row level security;
+alter table if exists test_attempts enable row level security;
+alter table if exists test_results enable row level security;
+alter table if exists discussions enable row level security;
+alter table if exists comments enable row level security;
+alter table if exists notifications enable row level security;
+alter table if exists course_progress enable row level security;
+alter table if exists material_progress enable row level security;
+alter table if exists video_progress enable row level security;
