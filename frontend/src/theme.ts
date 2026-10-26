@@ -1,8 +1,8 @@
-// Design tokens — Oceanic Royal Blue EdTech personality.
+// Design tokens — Oceanic Royal Blue EdTech personality (Light & Dark Mode).
 // Crisp typography, trusted vibrant royal blue primary, soft air washes, ultra-soft shadows, razor-sharp borders.
 // NEVER write hardcoded color literals in components. Use colors.* or useTheme().colors.
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Appearance, Platform, StyleSheet, useColorScheme } from "react-native";
 
 export type ColorScheme = "light" | "dark";
@@ -45,10 +45,48 @@ const light = {
   divider: "#F1F5F9",
 };
 
+const dark: ThemeColors = {
+  // Surfaces - Deep Midnight Navy (OLED friendly)
+  surface: "#0B1120",
+  onSurface: "#F8FAFC",
+  surfaceSecondary: "#1E293B",
+  onSurfaceSecondary: "#F8FAFC",
+  surfaceTertiary: "#0F172A",
+  onSurfaceTertiary: "#94A3B8",
+  surfaceInverse: "#F8FAFC",
+  onSurfaceInverse: "#0B1120",
+  muted: "#64748B",
+
+  // Brand - Glowing Royal Blue
+  brand: "#3B82F6",
+  onBrand: "#FFFFFF",
+  brandPrimary: "#3B82F6",
+  onBrandPrimary: "#FFFFFF",
+  brandSecondary: "#60A5FA",
+  onBrandSecondary: "#0B1120",
+  brandTertiary: "#1E3A8A",
+  onBrandTertiary: "#93C5FD",
+
+  // Status
+  success: "#10B981",
+  onSuccess: "#FFFFFF",
+  warning: "#F59E0B",
+  onWarning: "#FFFFFF",
+  error: "#EF4444",
+  onError: "#FFFFFF",
+  info: "#1E3A8A",
+  onInfo: "#93C5FD",
+
+  // Lines
+  border: "#334155",
+  borderStrong: "#475569",
+  divider: "#1E293B",
+};
+
 export type ThemeColors = typeof light;
 
 export const defaultScheme = "light" satisfies ColorScheme;
-export const themes: { light: ThemeColors; dark?: ThemeColors } = { light };
+export const themes: { light: ThemeColors; dark: ThemeColors } = { light, dark };
 
 export const spacing = {
   xs: 4,
@@ -133,16 +171,40 @@ export const shadows = {
   })!,
 } as const;
 
+let currentScheme: ColorScheme = defaultScheme;
+const listeners = new Set<(scheme: ColorScheme) => void>();
+
 export function setColorScheme(scheme: ColorScheme | null) {
+  currentScheme = scheme ?? "light";
   Appearance.setColorScheme?.(scheme ?? "unspecified");
+  listeners.forEach((fn) => fn(currentScheme));
 }
 
-setColorScheme?.(themes.dark ? null : defaultScheme);
+export function useTheme(): {
+  scheme: ColorScheme;
+  colors: ThemeColors;
+  toggleTheme: () => void;
+  setScheme: (scheme: ColorScheme) => void;
+} {
+  const [scheme, setSchemeState] = useState<ColorScheme>(currentScheme);
 
-export function useTheme(): { scheme: ColorScheme; colors: ThemeColors } {
-  const system = useColorScheme();
-  const scheme: ColorScheme = system === "dark" && themes.dark ? "dark" : defaultScheme;
-  return { scheme, colors: themes[scheme] ?? themes.light };
+  useEffect(() => {
+    listeners.add(setSchemeState);
+    return () => {
+      listeners.delete(setSchemeState);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    setColorScheme(scheme === "dark" ? "light" : "dark");
+  };
+
+  return {
+    scheme,
+    colors: themes[scheme] ?? themes.light,
+    toggleTheme,
+    setScheme: setColorScheme,
+  };
 }
 
 export function makeStyles<T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>>(

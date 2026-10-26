@@ -3,6 +3,7 @@ import { Platform, Pressable, RefreshControl, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import {
+  Avatar,
   Badge,
   Card,
   Icon,
@@ -13,6 +14,17 @@ import {
 import { apiFetch } from "@/src/services/api";
 import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
 import type { CourseCatalogItem, StudentDashboardData } from "@/src/types/course";
+
+interface LeaderboardUser {
+  user_id: string;
+  name: string;
+  picture?: string | null;
+  total_points: number;
+  avg_score: number;
+  tests_completed: number;
+  is_current_user: boolean;
+  rank: number;
+}
 
 interface BadgeItem {
   id: string;
@@ -119,6 +131,61 @@ const useStyles = makeStyles((colors) => ({
     fontSize: typography.size.xs,
   },
 
+  // Leaderboard styles
+  leaderCard: {
+    marginBottom: spacing.xs,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  leaderCurrent: {
+    borderWidth: 1.5,
+    borderColor: colors.brandPrimary,
+    backgroundColor: colors.brandTertiary,
+  },
+  rankBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surfaceTertiary,
+  },
+  rankBadgeTop1: { backgroundColor: "#FEF3C7" },
+  rankBadgeTop2: { backgroundColor: "#E2E8F0" },
+  rankBadgeTop3: { backgroundColor: "#FFEDD5" },
+  rankText: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+  },
+  leaderInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  leaderName: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: colors.onSurface,
+  },
+  leaderMeta: {
+    fontSize: typography.size.xs,
+    color: colors.muted,
+  },
+  pointsBadge: {
+    alignItems: "flex-end",
+  },
+  pointsText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: colors.brandPrimary,
+  },
+  pointsLabel: {
+    fontSize: 10,
+    color: colors.muted,
+  },
+
   badgeCard: {
     marginBottom: spacing.md,
     flexDirection: "row",
@@ -165,15 +232,18 @@ export default function ProgressScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [courses, setCourses] = useState<CourseCatalogItem[]>([]);
   const [dashData, setDashData] = useState<StudentDashboardData | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
 
   const loadData = useCallback(async () => {
     try {
-      const [cRes, dRes] = await Promise.all([
+      const [cRes, dRes, lRes] = await Promise.all([
         apiFetch<{ courses: CourseCatalogItem[] }>("/courses"),
         apiFetch<StudentDashboardData>("/dashboard/student"),
+        apiFetch<{ leaderboard: LeaderboardUser[] }>("/dashboard/leaderboard").catch(() => ({ leaderboard: [] })),
       ]);
       setCourses(cRes.courses ?? []);
       setDashData(dRes);
+      setLeaderboard(lRes.leaderboard ?? []);
     } catch {
       // Graceful fallback
     } finally {
@@ -321,6 +391,58 @@ export default function ProgressScreen() {
           </Card>
         </Pressable>
       ))}
+
+      {/* Leaderboard Section */}
+      <View style={[styles.sectionHeader, { marginTop: spacing.md }]}>
+        <Text style={styles.sectionTitle}>🏆 Papan Peringkat Belajar</Text>
+      </View>
+
+      <Card style={{ padding: spacing.xs, marginBottom: spacing.lg }}>
+        {leaderboard.length === 0 ? (
+          <Text style={{ textAlign: "center", color: colors.muted, padding: spacing.md }}>
+            Belum ada data peringkat. Selesaikan ujian untuk masuk peringkat!
+          </Text>
+        ) : (
+          leaderboard.slice(0, 5).map((u) => (
+            <View
+              key={u.user_id}
+              style={[
+                styles.leaderCard,
+                u.is_current_user && styles.leaderCurrent,
+              ]}
+            >
+              <View
+                style={[
+                  styles.rankBadge,
+                  u.rank === 1 && styles.rankBadgeTop1,
+                  u.rank === 2 && styles.rankBadgeTop2,
+                  u.rank === 3 && styles.rankBadgeTop3,
+                ]}
+              >
+                <Text style={styles.rankText}>
+                  {u.rank === 1 ? "🥇" : u.rank === 2 ? "🥈" : u.rank === 3 ? "🥉" : u.rank}
+                </Text>
+              </View>
+
+              <Avatar name={u.name} uri={u.picture} size={36} />
+
+              <View style={styles.leaderInfo}>
+                <Text style={styles.leaderName}>
+                  {u.name} {u.is_current_user ? "(Kamu)" : ""}
+                </Text>
+                <Text style={styles.leaderMeta}>
+                  {u.tests_completed} ujian selesai • Rata-rata: {u.avg_score}%
+                </Text>
+              </View>
+
+              <View style={styles.pointsBadge}>
+                <Text style={styles.pointsText}>{u.total_points}</Text>
+                <Text style={styles.pointsLabel}>Poin</Text>
+              </View>
+            </View>
+          ))
+        )}
+      </Card>
 
       {/* Gamification / Badges */}
       <View style={[styles.sectionHeader, { marginTop: spacing.lg }]}>

@@ -138,7 +138,7 @@ const useStyles = makeStyles((colors) => ({
 
 export default function ProfileScreen() {
   const styles = useStyles();
-  const { colors } = useTheme();
+  const { colors, scheme, toggleTheme } = useTheme();
   const { user, logout, operation } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState<{
@@ -159,6 +159,28 @@ export default function ProfileScreen() {
       </View>
 
       <Card padded={false}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.row,
+            { paddingHorizontal: spacing.lg },
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={toggleTheme}
+          testID="profile-theme-toggle"
+        >
+          <View style={styles.rowIcon}>
+            <Icon
+              name={scheme === "dark" ? "moon" : "sunny-outline"}
+              size={18}
+              color={scheme === "dark" ? "#F59E0B" : colors.onSurface}
+            />
+          </View>
+          <Text style={styles.rowLabel}>Mode Gelap (Dark Mode)</Text>
+          <Badge
+            label={scheme === "dark" ? "Aktif" : "Mati"}
+            tone={scheme === "dark" ? "brand" : "neutral"}
+          />
+        </Pressable>
         {ROWS.map((r, i) => (
           <Pressable
             key={r.key}

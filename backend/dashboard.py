@@ -49,6 +49,43 @@ async def student_dashboard(user: UserPublic = Depends(require_role("STUDENT")))
     }
 
 
+@router.get("/leaderboard")
+async def student_leaderboard(user: UserPublic = Depends(require_role("STUDENT"))):
+    students = await db.users.find({"role": "STUDENT"}, {"_id": 0, "user_id": 1, "name": 1, "picture": 1}).to_list(length=100)
+    user_ids = [s["user_id"] for s in students]
+    results = await db.test_results.find({"user_id": {"$in": user_ids}}, {"_id": 0, "user_id": 1, "percentage": 1, "score": 1}).to_list(length=500)
+    
+    score_by_user: dict[str, int] = {}
+    tests_by_user: dict[str, int] = {}
+    for r in results:
+        uid = r["user_id"]
+        score_by_user[uid] = score_by_user.get(uid, 0) + r.get("percentage", 0)
+        tests_by_user[uid] = tests_by_user.get(uid, 0) + 1
+        
+    leaderboard = []
+    for s in students:
+        uid = s["user_id"]
+        total_score = score_by_user.get(uid, 0)
+        count = tests_by_user.get(uid, 0)
+        avg = round(total_score / count) if count > 0 else 0
+        points = total_score + (count * 50)
+        leaderboard.append({
+            "user_id": uid,
+            "name": s["name"],
+            "picture": s.get("picture"),
+            "total_points": points,
+            "avg_score": avg,
+            "tests_completed": count,
+            "is_current_user": uid == user.user_id,
+        })
+        
+    leaderboard.sort(key=lambda x: (x["total_points"], x["avg_score"]), reverse=True)
+    for idx, item in enumerate(leaderboard):
+        item["rank"] = idx + 1
+        
+    return {"leaderboard": leaderboard[:15]}
+
+
 @router.get("/admin/overview")
 async def admin_overview(user: UserPublic = Depends(require_role("ADMIN"))):
     total_students = await db.users.count_documents({"role": "STUDENT"})
