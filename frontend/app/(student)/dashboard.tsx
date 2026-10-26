@@ -10,7 +10,7 @@ import {
 } from "@/src/components/ui";
 import { useAuth } from "@/src/hooks/useAuth";
 import { apiFetch } from "@/src/services/api";
-import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
+import { makeStyles, radius, shadows, spacing, typography, useTheme } from "@/src/theme";
 import type { StudentDashboardData } from "@/src/types/course";
 
 const useStyles = makeStyles((colors) => ({
