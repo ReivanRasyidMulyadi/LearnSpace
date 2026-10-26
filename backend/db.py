@@ -71,9 +71,24 @@ def _deserialize_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     return res
 
 
-def _apply_filter(query: Any, filter_dict: Dict[str, Any]) -> Any:
+def _apply_filter(query: Any, filter_dict: Dict[str, Any], table_name: Optional[str] = None) -> Any:
     for k, v in filter_dict.items():
         if k == "_id":
+            continue
+        if table_name == "user_sessions" and k == "session_token":
+            continue
+        if k == "$or" and isinstance(v, list):
+            parts = []
+            for sub in v:
+                if isinstance(sub, dict):
+                    for sub_k, sub_v in sub.items():
+                        if sub_k == "_id":
+                            continue
+                        if table_name == "user_sessions" and sub_k == "session_token":
+                            continue
+                        parts.append(f"{sub_k}.eq.{_serialize_val(sub_v)}")
+            if parts:
+                query = query.or_(",".join(parts))
             continue
         if isinstance(v, dict):
             if "$in" in v:
@@ -168,7 +183,7 @@ class SupabaseCollection:
         def _run():
             try:
                 q = supabase.table(self.name).select("*")
-                q = _apply_filter(q, filter_dict)
+                q = _apply_filter(q, filter_dict, self.name)
                 if sort_fields:
                     for field, asc in sort_fields:
                         q = q.order(field, desc=(not asc))
@@ -311,7 +326,7 @@ class SupabaseCollection:
             def _run():
                 try:
                     q = supabase.table(self.name).update(serialized)
-                    q = _apply_filter(q, filter_dict)
+                    q = _apply_filter(q, filter_dict, self.name)
                     return q.execute()
                 except Exception as e:
                     if "PGRST205" in str(e) or "not find the table" in str(e):
@@ -332,7 +347,7 @@ class SupabaseCollection:
 
             def _run():
                 q = supabase.table(self.name).update(serialized)
-                q = _apply_filter(q, filter_dict)
+                q = _apply_filter(q, filter_dict, self.name)
                 return q.execute()
 
             await asyncio.to_thread(_run)
@@ -340,7 +355,7 @@ class SupabaseCollection:
     async def delete_many(self, filter_dict: Dict[str, Any]) -> None:
         def _run():
             q = supabase.table(self.name).delete()
-            q = _apply_filter(q, filter_dict)
+            q = _apply_filter(q, filter_dict, self.name)
             return q.execute()
 
         await asyncio.to_thread(_run)
@@ -352,7 +367,7 @@ class SupabaseCollection:
         def _run():
             q = supabase.table(self.name).select("*", count="exact")
             if filter_dict:
-                q = _apply_filter(q, filter_dict)
+                q = _apply_filter(q, filter_dict, self.name)
             res = q.limit(0).execute()
             return res.count or 0
 

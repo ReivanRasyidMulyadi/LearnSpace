@@ -95,15 +95,7 @@ async def _find_session(token: str) -> Optional[dict]:
     session = await db.user_sessions.find_one({"token_hash": digest}, {"_id": 0})
     if session:
         return session
-
-    # One-time migration path for sessions created before token hashing.
-    legacy = await db.user_sessions.find_one({"session_token": token}, {"_id": 0})
-    if legacy:
-        await db.user_sessions.update_one(
-            {"session_token": token},
-            {"$set": {"token_hash": digest}, "$unset": {"session_token": ""}},
-        )
-    return legacy
+    return None
 
 
 async def _get_user_public(user_id: str) -> UserPublic:
