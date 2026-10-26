@@ -1,7 +1,7 @@
 {
   "app_name": "LearnSpace",
-  "personality": "Clean Minimalist (Apple / Notion)",
-  "personality_one_liner": "A sleek, refined, and minimalist digital learning workspace with elegant slate surfaces, razor-sharp borders, soft ambient elevation, and distraction-free typography.",
+  "personality": "Oceanic Royal Blue EdTech",
+  "personality_one_liner": "A vibrant, welcoming, and high-contrast digital learning platform with trusted oceanic royal blue accents, crisp slate typography, and clean razor-sharp borders.",
   "color": {
     "surface": "#F8FAFC",
     "onSurface": "#0F172A",
@@ -11,10 +11,10 @@
     "onSurfaceTertiary": "#475569",
     "surfaceInverse": "#0F172A",
     "onSurfaceInverse": "#FFFFFF",
-    "brand": "#0F172A",
-    "brandPrimary": "#0F172A",
+    "brand": "#2563EB",
+    "brandPrimary": "#2563EB",
     "onBrandPrimary": "#FFFFFF",
-    "brandSecondary": "#2563EB",
+    "brandSecondary": "#3B82F6",
     "onBrandSecondary": "#FFFFFF",
     "brandTertiary": "#EFF6FF",
     "onBrandTertiary": "#1D4ED8",

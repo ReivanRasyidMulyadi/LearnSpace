@@ -40,8 +40,8 @@ const useStyles = makeStyles((colors) => ({
   },
   optionSelected: {
     borderColor: colors.brandPrimary,
-    backgroundColor: colors.surfaceTertiary,
-    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #0F172A" } as any) : {}),
+    backgroundColor: colors.brandTertiary,
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #2563EB" } as any) : {}),
   },
   letter: {
     width: 28,

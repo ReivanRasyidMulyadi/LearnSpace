@@ -32,13 +32,14 @@ const useStyles = makeStyles((colors) => ({
   },
 
   hero: {
-    backgroundColor: colors.surfaceInverse,
+    backgroundColor: colors.brandPrimary,
     borderRadius: radius.lg,
     padding: spacing.xl,
     gap: spacing.sm,
     marginBottom: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.surfaceInverse,
+    borderColor: colors.brandPrimary,
+    ...shadows.cardElevated,
     ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "transform 0.15s ease, opacity 0.15s ease" } as any) : {}),
   },
   heroBadgeRow: {
@@ -48,19 +49,19 @@ const useStyles = makeStyles((colors) => ({
   },
   heroBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
     borderRadius: radius.sm,
   },
   heroLabel: {
-    color: colors.onSurfaceInverse,
+    color: colors.onBrandPrimary,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.6,
   },
   heroTitle: {
-    color: colors.onSurfaceInverse,
+    color: colors.onBrandPrimary,
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     lineHeight: 26,
@@ -73,10 +74,10 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.sm,
   },
   heroCtaText: {
-    color: colors.onSurfaceInverse,
+    color: colors.onBrandPrimary,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
-    opacity: 0.9,
+    fontWeight: typography.weight.semibold,
+    opacity: 0.95,
   },
 
   statsRow: {
@@ -205,7 +206,7 @@ export default function StudentDashboard() {
           </View>
           <Text style={styles.heroTitle}>{heroTitle}</Text>
           <View style={styles.heroCta}>
-            <Icon name="play" size={16} color={colors.onSurfaceInverse} />
+            <Icon name="play" size={16} color={colors.onBrandPrimary} />
             <Text style={styles.heroCtaText}>{heroCta}</Text>
           </View>
         </View>

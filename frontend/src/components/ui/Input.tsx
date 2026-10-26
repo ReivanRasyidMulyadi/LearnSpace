@@ -38,7 +38,7 @@ const useStyles = makeStyles((colors) => ({
   focused: {
     borderColor: colors.brandPrimary,
     backgroundColor: colors.surfaceSecondary,
-    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #0F172A" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #2563EB" } as any) : {}),
   },
   errorBorder: {
     borderColor: colors.error,

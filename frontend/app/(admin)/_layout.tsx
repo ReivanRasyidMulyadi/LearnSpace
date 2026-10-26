@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
-import type { ColorValue } from "react-native";
+import { Platform, type ColorValue } from "react-native";
 import { useTheme } from "@/src/theme";
 import { Icon, LoadingSpinner, type IoniconName } from "@/src/components/ui";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -20,7 +20,7 @@ export default function AdminLayout() {
 
   const makeIcon = (name: IoniconName) =>
     function TabBarIcon({ color, size }: { color: ColorValue; size: number }) {
-      return <Icon name={name} size={size} color={String(color)} />;
+      return <Icon name={name} size={20} color={String(color)} />;
     };
 
   return (
@@ -32,9 +32,17 @@ export default function AdminLayout() {
         tabBarStyle: {
           backgroundColor: colors.surfaceSecondary,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
+          height: Platform.OS === "web" ? 62 : 60,
+          paddingTop: 6,
+          paddingBottom: Platform.OS === "web" ? 8 : 6,
+          ...(Platform.OS === "web" ? ({ boxShadow: "0 -1px 2px 0 rgba(0, 0, 0, 0.02)" } as any) : {}),
         },
         tabBarLabelStyle: { fontWeight: "600", fontSize: 11 },
-        tabBarItemStyle: { alignSelf: "center" },
+        tabBarItemStyle: {
+          alignSelf: "center",
+          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+        },
       }}
     >
       <Tabs.Screen

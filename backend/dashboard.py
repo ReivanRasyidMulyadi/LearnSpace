@@ -95,3 +95,100 @@ async def admin_overview(user: UserPublic = Depends(require_role("ADMIN"))):
         },
         "recent_activity": recent_activity,
     }
+
+
+@router.get("/admin/users")
+async def admin_users(user: UserPublic = Depends(require_role("ADMIN"))):
+    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(length=200)
+    # Ensure datetime serialization
+    serialized = []
+    for u in users:
+        item = dict(u)
+        if "created_at" in item and hasattr(item["created_at"], "isoformat"):
+            item["created_at"] = item["created_at"].isoformat()
+        if "updated_at" in item and hasattr(item["updated_at"], "isoformat"):
+            item["updated_at"] = item["updated_at"].isoformat()
+        serialized.append(item)
+    return {"users": serialized}
+
+
+@router.get("/admin/courses")
+async def admin_courses(user: UserPublic = Depends(require_role("ADMIN"))):
+    courses = await list_active_courses()
+    total_students = await db.users.count_documents({"role": "STUDENT"})
+    result = []
+    for c in courses:
+        cid = c["course_id"]
+        enrolled = await db.course_progress.count_documents({"course_id": cid})
+        completed = await db.course_progress.count_documents(
+            {"course_id": cid, "completed_modules": "results"}
+        )
+        result.append(
+            {
+                "id": cid,
+                "title": c["title"],
+                "total_modules": len(MODULES),
+                "enrolled_count": enrolled or total_students,
+                "completed_count": completed,
+                "status": "active",
+            }
+        )
+    return {"courses": result}
+
+
+@router.get("/admin/analytics")
+async def admin_analytics(user: UserPublic = Depends(require_role("ADMIN"))):
+    results = await db.test_results.find({}, {"_id": 0}).to_list(length=1000)
+    avg_score = round(sum(r.get("percentage", 0) for r in results) / len(results)) if results else 0
+    total_attempts = len(results)
+    pre_test_count = sum(1 for r in results if r.get("test_type") == "pre_test")
+    post_test_count = sum(1 for r in results if r.get("test_type") == "post_test")
+
+    course_stats = []
+    for c in await list_active_courses():
+        cid = c["course_id"]
+        c_res = [r for r in results if r.get("course_id") == cid]
+        c_avg = round(sum(r.get("percentage", 0) for r in c_res) / len(c_res)) if c_res else 0
+        course_stats.append({
+            "course_id": cid,
+            "title": c["title"],
+            "attempts": len(c_res),
+            "avg_score": c_avg,
+        })
+
+    return {
+        "summary": {
+            "avg_score": avg_score,
+            "total_attempts": total_attempts,
+            "pre_test_count": pre_test_count,
+            "post_test_count": post_test_count,
+        },
+        "course_stats": course_stats,
+    }
+
+
+@router.get("/admin/reports")
+async def admin_reports(user: UserPublic = Depends(require_role("ADMIN"))):
+    results = await db.test_results.find({}, {"_id": 0}).sort("completed_at", -1).limit(50).to_list(length=50)
+    course_titles = {c["course_id"]: c["title"] for c in await list_active_courses()}
+    user_ids = list({r["user_id"] for r in results})
+    user_docs = await db.users.find({"user_id": {"$in": user_ids}}, {"_id": 0, "user_id": 1, "name": 1, "email": 1}).to_list(length=100)
+    user_map = {u["user_id"]: u for u in user_docs}
+
+    reports = []
+    for r in results:
+        u = user_map.get(r["user_id"], {"name": "Siswa", "email": "-"})
+        cat = r.get("completed_at")
+        reports.append({
+            "id": r.get("result_id", ""),
+            "user_name": u.get("name", "Siswa"),
+            "user_email": u.get("email", "-"),
+            "course_title": course_titles.get(r.get("course_id"), r.get("course_id")),
+            "test_type": r.get("test_type", "pre_test"),
+            "score": r.get("score", 0),
+            "total": r.get("total", 5),
+            "percentage": r.get("percentage", 0),
+            "completed_at": cat.isoformat() if hasattr(cat, "isoformat") else str(cat),
+        })
+    return {"reports": reports}
+

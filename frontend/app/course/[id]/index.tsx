@@ -160,7 +160,7 @@ export default function CourseDetail() {
       router.push(`/course/${courseId}/discussion`);
       return;
     }
-    setHint(`Modul ${m.title} segera hadir.`);
+    router.push(`/course/${courseId}/module/${m.key}`);
   };
 
   if (error) {

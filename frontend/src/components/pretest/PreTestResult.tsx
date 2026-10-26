@@ -14,7 +14,7 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 const useStyles = makeStyles((colors) => ({
   hero: {
-    backgroundColor: colors.surfaceInverse,
+    backgroundColor: colors.brandPrimary,
     borderRadius: radius.lg,
     padding: spacing.xl,
     alignItems: "center",
@@ -22,27 +22,27 @@ const useStyles = makeStyles((colors) => ({
     marginBottom: spacing.lg,
   },
   heroLabel: {
-    color: colors.onSurfaceInverse,
-    opacity: 0.8,
+    color: colors.onBrandPrimary,
+    opacity: 0.9,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.8,
   },
   score: {
-    color: colors.onSurfaceInverse,
+    color: colors.onBrandPrimary,
     fontSize: 52,
     fontWeight: typography.weight.display,
     lineHeight: 60,
     letterSpacing: -1.5,
   },
   heroSub: {
-    color: colors.onSurfaceInverse,
+    color: colors.onBrandPrimary,
     fontSize: typography.size.base,
     fontWeight: typography.weight.semibold,
   },
   heroMsg: {
-    color: colors.onSurfaceInverse,
-    opacity: 0.85,
+    color: colors.onBrandPrimary,
+    opacity: 0.9,
     textAlign: "center",
     marginTop: spacing.xs,
     fontSize: typography.size.sm,
