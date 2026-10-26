@@ -10,9 +10,7 @@ from typing import Callable, Optional
 import bcrypt
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException
-from pymongo.errors import DuplicateKeyError
-
-from db import db
+from db import DuplicateKeyError, db
 from db_models import gen_id, utcnow
 from models import (
     AuthResponse,

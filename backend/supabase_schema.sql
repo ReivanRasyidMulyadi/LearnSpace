@@ -12,6 +12,8 @@ create table if not exists users (
     name text not null,
     role text not null default 'STUDENT', -- 'STUDENT' or 'ADMIN'
     password_hash text not null,
+    picture text,
+    auth_provider text default 'password',
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -179,7 +181,41 @@ create table if not exists test_results (
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 5. Discussions & Comments
+-- 5. Student Progress Tracking
+create table if not exists course_progress (
+    progress_id text primary key,
+    user_id text not null references users(user_id) on delete cascade,
+    course_id text not null references courses(course_id) on delete cascade,
+    completed_modules jsonb not null default '[]'::jsonb,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique(user_id, course_id)
+);
+
+create table if not exists material_progress (
+    progress_id text primary key,
+    user_id text not null references users(user_id) on delete cascade,
+    material_id text not null references materials(material_id) on delete cascade,
+    course_id text not null references courses(course_id) on delete cascade,
+    completed boolean not null default false,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique(user_id, material_id)
+);
+
+create table if not exists video_progress (
+    progress_id text primary key,
+    user_id text not null references users(user_id) on delete cascade,
+    video_id text not null references videos(video_id) on delete cascade,
+    course_id text not null references courses(course_id) on delete cascade,
+    watched_seconds integer not null default 0,
+    completed boolean not null default false,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique(user_id, video_id)
+);
+
+-- 6. Discussions & Comments
 create table if not exists discussions (
     discussion_id text primary key,
     course_id text not null references courses(course_id) on delete cascade,
