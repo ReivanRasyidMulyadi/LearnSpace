@@ -1,0 +1,35 @@
+{
+  "summary": "LearnSpace first-build validation. Backend: 14/14 pytest tests pass (100%) covering health, email/password auth (register/login/me/logout), role gating for /dashboard/student & /dashboard/admin/overview, invalid Google session_id, and _id leakage checks. Frontend (mobile viewport 390x844): Login/Register screens render with brand + testIDs; admin login navigates to Admin tabs with 4 metric cards; student login navigates to Student tabs with greeting, continue-learning hero, streak+badges, and 4 Mata Pelajaran cards; tapping a subject opens Course Detail with all 7 modules (Pre-Test, Materi, Video, Manual Book, Diskusi, Post-Test, Hasil) and Pre-Test is unlocked while the rest show locked indicators; Profile logout returns to Login; Register auto-logs in a new student.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "shadow* style props", "issue": "Console warning: \"shadow*\" style props are deprecated. Use \"boxShadow\". Non-blocking but should be migrated for RN web."}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: migrate shadow* style props to boxShadow to silence RN-web deprecation warning."
+  ],
+  "critical_code_review_comments": [
+    "Pydantic EmailStr rejects reserved TLDs like .test; keep test fixtures using @example.com (already applied in backend_test.py).",
+    "Backend consistently projects {_id: 0} and no _id leakage was observed across auth or dashboard responses.",
+    "Seeding is idempotent (checks existence by email) and matches /app/memory/test_credentials.md.",
+    "Session TTL managed via Mongo TTL index on user_sessions.expires_at; logout also hard-deletes the session document.",
+    "Role gating in dashboard.py raises 403 for the wrong role and get_current_user raises 401 for missing/invalid/expired tokens — matches spec."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None manually created. Seeded admin/student users are auto-provisioned by the backend startup hook. Backend test fixtures create ephemeral TEST_ users via /api/auth/register using @example.com.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend public URL = EXPO_PUBLIC_BACKEND_URL (https://learnspace-app.preview.emergentagent.com). Seeded accounts: admin@learnspace.app/Admin@123 and student@learnspace.app/Student@123. Use @example.com for register fixtures — Pydantic's EmailStr rejects reserved TLDs (.test/.invalid). Course modules use keys: pre_test, materials, videos, manual_book, discussion, post_test, results (testID=module-<key>). Student bottom tabs are Beranda/Kelas/Progres/Profil (match by text). Admin logout button has testID=admin-logout-button; student logout button has testID=logout-button on the Profile screen.",
+  "rca_of_issue": "No bugs found. Initial playwright failure for course modules was a test-side mismatch — I had guessed shorter keys (pretest/materi/video/...) but the real testIDs are kebab/underscore (pre_test/materials/videos/manual_book/discussion/post_test/results). Re-run with correct keys produced 7/7."
+}

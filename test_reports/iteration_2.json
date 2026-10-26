@@ -1,0 +1,40 @@
+{
+  "summary": "Pre-Test engine (backend + frontend) validated for LearnSpace. Backend: 13/13 new pytest cases pass (/api/tests/{course_id}/pre-test GET/POST/result, /api/courses GET + /{id}/progress, /api/dashboard/student). Covered: 401 unauthenticated, 404 unknown course, questions returned WITHOUT correct_index, 5 questions, attempt=null fresh; submit scores + review with per-question correct_index/selected_index/is_correct, unanswered treated as wrong, invalid option index -> 422, duplicate submit -> 409, admin -> 403; result 404 before and attempt after; progress 0% + all modules locked before, 14% + all unlocked + next_module=materials after; /api/courses lists 4 courses with pre_test_completed flags; /api/dashboard/student subjects + continue_learning reflect state. Frontend (390x844): registered fresh student via /api/auth/register, logged in through UI, English course detail shows '0 dari 7 modul selesai / 0%' and locked modules (tapping Materi surfaces 'Selesaikan Pre-Test...' hint); pre-test flow: intro -> quiz with 'Soal X dari 5' progress bar, option-N tap selects, quiz-next / quiz-prev navigate, last question quiz-submit triggers window.confirm (auto-accepted) -> result screen pretest-score '100%' with review cards; pretest-continue returns to course detail now showing '1 dari 7 modul selesai / 14%', Pre-Test with 'Selesai' badge, and Materi with 'Lanjutkan' badge (unlocked). Dashboard hero correctly reads 'Mulai dengan Pre-Test Matematika' because continue_learning picks the first course still needing a step (expected business logic). Deprecated RN-web warning carried over from previous iteration: shadow* style props.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "shadow* style props", "issue": "RN-web deprecation: '\"shadow*\" style props are deprecated. Use \"boxShadow\".' Non-blocking carryover from iteration 1."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_pretest.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pretest_results.xml"
+  ],
+  "action_items": [
+    "Optional: migrate shadow* style props to boxShadow (RN-web)."
+  ],
+  "critical_code_review_comments": [
+    "pretest.py: GET endpoint correctly strips correct_index via projection; POST returns review containing correct_index (intended for the result screen). Clean 404/409/403/422 mapping.",
+    "courses.py build_course_progress: pre_test is always unlocked; everything else gated on pre_test completion; next_module picks the first unlocked, incomplete module -> matches spec.",
+    "dashboard.student: continue_learning iterates COURSES dict in insertion order and returns the first course with a next_module. For a fresh student who only completed English pre-test, hero correctly stays on Matematika pre-test; this is by design (not a bug).",
+    "seed_data.seed_questions is idempotent via existence check + delete_many; completed_at used for latest-attempt sort (unique attempt enforced only via 409 check — not via DB unique index, acceptable at this scale but noted).",
+    "Frontend course detail uses useFocusEffect to refetch progress on return from pre-test; dashboard also uses useFocusEffect so subject cards and hero refresh after completion.",
+    "Pretest screen correctly maps 409 ApiError back to load() so a replay goes straight to result; web confirm() path matches testing contract."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_pretest.py (new)"
+  ],
+  "success_rate": {"backend": "100% (13/13 new + 14/14 regression)", "frontend": "100%"},
+  "seed_data_creation": "Fresh students created ephemerally via POST /api/auth/register (@example.com, uuid suffix) in both pytest fixtures and the Playwright run. Avoided submitting against seeded student@learnspace.app/math per request. Pre-test questions auto-seeded by backend startup.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend URL: EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Prefer registering fresh @example.com students via /api/auth/register (Pydantic EmailStr rejects .test/.invalid TLDs). Pre-test endpoints: GET/POST/result under /api/tests/{course_id}/pre-test; course flow via /api/courses + /{id}/progress; dashboard via /api/dashboard/student. For UI, register via API then login through the UI — the register page has 5 inputs (name + email + password + 2 role radio-wrapped inputs: Siswa/Admin) which makes direct Playwright fill brittle; the role toggle hides the 1st input underneath. Pre-test submit triggers window.confirm — install page.on('dialog', d => d.accept()) BEFORE clicking quiz-submit. testIDs confirmed: subject-card-<course>, course-progress-card, module-<key> (keys: pre_test, materials, videos, manual_book, discussion, post_test, results), module-hint, pretest-intro, pretest-start, quiz-progress, option-0..3, quiz-prev, quiz-next, quiz-submit, pretest-result, pretest-score, pretest-continue, pretest-back, continue-learning-card.",
+  "rca_of_issue": "No functional bugs found. Minor Playwright timeout observed when re-waiting for course-progress-card right after pretest-continue (two instances briefly mounted during Expo Router transition — resolves on its own and screenshots confirm correct 14%/Selesai state)."
+}

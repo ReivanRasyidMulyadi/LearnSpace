@@ -1,0 +1,184 @@
+{
+  "app_name": "LearnSpace",
+  "personality": "4 Tactile / Playful LIGHT",
+  "personality_one_liner": "An energetic, encouraging, and highly tactile space that makes learning feel like a rewarding game rather than a chore.",
+  "color": {
+    "surface": "#FDFCF9",
+    "onSurface": "#1C1C1F",
+    "surfaceSecondary": "#FFFFFF",
+    "onSurfaceSecondary": "#1C1C1F",
+    "surfaceTertiary": "#F2F1EC",
+    "onSurfaceTertiary": "#4A4A4D",
+    "surfaceInverse": "#1C1C1F",
+    "onSurfaceInverse": "#FDFCF9",
+    "brand": "#FF715B",
+    "brandPrimary": "#FF715B",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#FFD166",
+    "onBrandSecondary": "#1C1C1F",
+    "brandTertiary": "#FDE6E2",
+    "onBrandTertiary": "#D94A38",
+    "success": "#34C759",
+    "onSuccess": "#FFFFFF",
+    "warning": "#FFD166",
+    "onWarning": "#1C1C1F",
+    "error": "#FF3B30",
+    "onError": "#FFFFFF",
+    "info": "#E5E5EA",
+    "onInfo": "#1C1C1F",
+    "border": "#EBEBE6",
+    "borderStrong": "#D6D6D1",
+    "divider": "#F2F2ED",
+    "muted": "#8A8A8E",
+    "onBrand": "#FFFFFF"
+  },
+  "typography": {
+    "displayFontFamily": "Fredoka",
+    "textFontFamily": "Nunito",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Use generous padding around content. Empty space should feel intentional and bubbly. Use md/lg for internal card spacing, xl for sections.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "pill": 999
+  },
+  "shadow_tier": "2",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use on the bottom tab bar when content scrolls behind.",
+      "Use on sticky headers over scrolling content.",
+      "Use as a frosted overlay on the Featured Course hero card over an abstract colored background."
+    ],
+    "dont's": [
+      "Do not use on regular list rows or form inputs.",
+      "Do not over-blur; maintain readability by applying a translucent tint layer behind text."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Login/Register",
+      "purpose": "A welcoming, zero-friction entry point that gets students excited to start.",
+      "states": {
+        "loading": "Centered bouncing spinner with 'Warming up...'",
+        "empty": "N/A",
+        "error": "Standard alert toast with Retry CTA"
+      },
+      "layout": "Top half: A friendly illustration or abstract shapes background with the LearnSpace logo. Bottom half: Form container wrapping inputs. Inputs use Pill radius (999) with subtle surfaceTertiary backgrounds. Large, chunky brandPrimary Continue button sticky at bottom. Include a 'Sign in with Google' secondary pill button."
+    },
+    {
+      "name": "Student Dashboard",
+      "purpose": "The student's main hub: highlights what's next and celebrates recent progress.",
+      "states": {
+        "loading": "Skeleton of hero card and horizontal scroll list.",
+        "empty": "Illustration of an empty desk with 'Ready to start your first course?' and a 'Browse Courses' CTA.",
+        "error": "Error message with 'Tap to reload'."
+      },
+      "layout": "Top: 'Continue Learning' hero card. The card features an abstract colorful background image with a glassmorphism overlay, showing the current module, a bold circular progress ring, and a play icon CTA. Middle: Gamification section (Streaks, Badges) displayed as chunky 2-column grid cards. Bottom: Horizontal scroll list of 'Subjects' (Math, Science), each card having a tinted icon container (brandTertiary) and subject title."
+    },
+    {
+      "name": "Admin Dashboard",
+      "purpose": "A clean, functional overview of platform health and quick operational actions.",
+      "states": {
+        "loading": "Grid skeletons for metrics.",
+        "empty": "No data available state.",
+        "error": "Failed to load metrics."
+      },
+      "layout": "Top: 2x2 grid of metric cards (Total Students, Active Courses, Revenue, Completion Rate) using surfaceSecondary cards with large text scales. Middle: 'Recent Activity' vertical list (e.g., New Registrations, Support Tickets) with functional icons. Bottom: Sticky primary CTA 'Manage Content' for rapid access."
+    },
+    {
+      "name": "Course Detail Placeholder",
+      "purpose": "The structured learning flow from pre-test to post-test for a specific subject.",
+      "states": {
+        "loading": "Module list skeletons.",
+        "empty": "Illustration of an open book with 'No modules unlocked yet'.",
+        "error": "Unable to load course modules."
+      },
+      "layout": "Top: Edge-to-edge hero image (e.g., Biology flasks) with a mandatory gradient scrim (transparent to 80% surfaceInverse) at the bottom for Course Title readability. Content: A vertical timeline or list of modules (Pre-Test, Materials, Videos, Manual Book, Discussion, Post-Test, Results). Each row uses a tinted icon container. Locked modules look visually distinct (muted opacity)."
+    },
+    {
+      "name": "Profile",
+      "purpose": "A space for the student to view their identity, settings, and accumulated achievements.",
+      "states": {
+        "loading": "Profile skeleton.",
+        "empty": "N/A",
+        "error": "Failed to load profile."
+      },
+      "layout": "Top: brandSecondary colored banner with the student's avatar (real image or initials in a circle) overlapping the bottom edge. Middle: 'Achievements' horizontal scroll of earned badges. Bottom: Settings list rows. Each row has a brandTertiary tinted icon container, a title, and a chevron on the right."
+    }
+  ],
+  "images": {
+    "hero_abstract": {
+      "url": "https://images.unsplash.com/photo-1655998233171-ee5b130acba5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbG9yZnVsJTIwc2hhcGVzJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3OTA4NzQ4MzR8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Abstract colorful shapes"
+    },
+    "course_biology": {
+      "url": "https://images.unsplash.com/photo-1725404343886-a111bc5555c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w7NDk1Nzh8MHwxfHNlYXJjaHwxfHxzY2llbmNlJTIwYmlvbG9neSUyMGNoZW1pc3RyeSUyMGNsYXNzfGVufDB8fHx8MTc5MDg3NDgzNXww&ixlib=rb-4.1.0&q=85",
+      "alt": "Science flasks on a table"
+    },
+    "course_chemistry_alternative": {
+      "url": "https://images.unsplash.com/photo-1628864005140-7770b9b8e7dd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHxzY2llbmNlJTIwYmlvbG9neSUyMGNoZW1pc3RyeSUyMGNsYXNzfGVufDB8fHx8MTc5MDg3NDgzNXww&ixlib=rb-4.1.0&q=85",
+      "alt": "Chemistry beaker on periodic table"
+    },
+    "empty_state_desk": {
+      "url": "https://images.unsplash.com/photo-1623697899811-f2403f50685e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwxfHxlbXB0eSUyMGRlc2slMjBub3RlYm9vayUyMHBlbmNpbCUyMHNrZXRjaHxlbnwwfHx8fDE3OTA4NzQ4NDB8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Empty desk with notebook"
+    },
+    "student_learning": {
+      "url": "https://images.unsplash.com/photo-1623076189461-f7706b741c04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwyfHxzdHVkZW50JTIwbGVhcm5pbmclMjBvbiUyMGxhcHRvcCUyMGNvbG9yZnVsfGVufDB8fHx8MTc5MDg3NDgzNHww&ixlib=rb-4.1.0&q=85",
+      "alt": "Student learning on laptop"
+    },
+    "empty_state_library": {
+      "url": "https://images.unsplash.com/photo-1778229356874-17367c170584?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwcmVhZGluZyUyMGElMjBib29rJTIwaWxsdXN0cmF0aW9uJTIwY29sb3JmdWx8ZW58MHx8fHwxNzkwODc0ODQwfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Student browsing colorful bookshelf illustration"
+    }
+  },
+  "haptics": {
+    "primary_button_press": "impactLight",
+    "tab_bar_change": "selection",
+    "course_module_select": "impactMedium",
+    "gamification_streak_unlock": "notificationSuccess"
+  },
+  "instructions_to_main_agent": [
+    "Follow the Tactile/Playful personality strictly: rounded corners (lg to pill), friendly spacing, and absolutely NO BLUE or INDIGO anywhere (even in defaults).",
+    "Use Fredoka for display fonts and Nunito for text. Ensure Expo loads these correctly.",
+    "For the 'Continue Learning' hero card on the Student Dashboard, layer it as follows: abstract colorful image -> glassmorphism overlay -> text and UI elements. This makes it look premium but playful.",
+    "On the Course Detail placeholder, ensure the hero image has a top-to-bottom gradient scrim (transparent to surfaceInverse) to guarantee text readability.",
+    "Make interactive elements feel chunky and touchable with shadow tier 2.",
+    "Admin Dashboard should still follow the Tactile language (rounded cards, coral/yellow accents), but with denser, metric-focused layouts.",
+    "Always wrap scrollable screens with a sticky CTA container at the bottom when a primary action is needed, accounting for safe areas.",
+    "Use Phosphor filled icons everywhere to maintain the chunky, friendly aesthetic.",
+    "Ensure 'brandTertiary' (#FDE6E2) is used as the background for icon containers, with 'onBrandTertiary' (#D94A38) for the icon color itself."
+  ]
+}
