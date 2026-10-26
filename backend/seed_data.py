@@ -42,7 +42,7 @@ MODULES: list[dict] = [
 # (text, options, correct_index)
 PRE_TEST_QUESTIONS: dict[str, list[tuple[str, list[str], int]]] = {
     "math": [
-        ("Hasil dari 12 × 8 adalah ...", ["86", "96", "106", "116"], 1),
+        ("Hasil dari 12 x 8 adalah ...", ["86", "96", "106", "116"], 1),
         ("Pecahan 3/4 sama dengan ...", ["0,25", "0,5", "0,75", "1,25"], 2),
         ("Keliling persegi dengan sisi 7 cm adalah ...", ["14 cm", "21 cm", "28 cm", "49 cm"], 2),
         ("Nilai x pada persamaan 2x + 6 = 14 adalah ...", ["2", "4", "6", "8"], 1),

@@ -5,6 +5,14 @@ export interface Subject {
   pre_test_completed?: boolean;
 }
 
+export interface CourseCatalogItem {
+  id: string;
+  title: string;
+  progress: number;
+  pre_test_completed: boolean;
+  total_modules: number;
+}
+
 export interface StudentDashboardData {
   greeting: string;
   streak_days: number;

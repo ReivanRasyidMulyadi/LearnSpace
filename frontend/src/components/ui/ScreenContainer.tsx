@@ -22,7 +22,7 @@ export interface ScreenContainerProps {
   padBottomInset?: boolean;
   contentContainerStyle?: ViewStyle;
   keyboardAvoiding?: boolean;
-  refreshControl?: React.ReactElement;
+  refreshControl?: React.ReactElement<any>;
   testID?: string;
 }
 

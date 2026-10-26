@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import {
@@ -27,6 +27,7 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.xl,
     gap: spacing.sm,
     marginBottom: spacing.lg,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   heroLabel: {
     color: colors.onBrandPrimary,
@@ -70,6 +71,7 @@ const useStyles = makeStyles((colors) => ({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   subjectIcon: {
     width: 48,

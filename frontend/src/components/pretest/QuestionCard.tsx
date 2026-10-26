@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 
 import { Card, Icon } from "@/src/components/ui";
 import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
@@ -32,6 +32,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: colors.border,
     backgroundColor: colors.surfaceSecondary,
     marginBottom: spacing.sm,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   optionSelected: {
     borderColor: colors.brandPrimary,

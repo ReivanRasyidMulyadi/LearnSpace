@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -73,6 +74,7 @@ export function Button({
     variant === "outline" && styles.outline,
     fullWidth && { alignSelf: "stretch" },
     (disabled || loading) && styles.disabled,
+    Platform.OS === "web" && !disabled && !loading ? ({ cursor: "pointer" } as any) : null,
     ...(Array.isArray(style) ? style : style ? [style] : []),
   ].filter(Boolean) as ViewStyle[];
 

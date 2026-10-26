@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import {
@@ -32,6 +32,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   headerText: { flex: 1 },
   title: {
@@ -54,6 +55,7 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     gap: spacing.md,
     marginBottom: spacing.md,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   iconWrap: {
     width: 48,

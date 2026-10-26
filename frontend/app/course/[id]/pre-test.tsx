@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Platform, Pressable, Text, View } from "react-native";
+import { Modal, Platform, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { PreTestIntro } from "@/src/components/pretest/PreTestIntro";
@@ -31,6 +31,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
+    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
   },
   headerText: { flex: 1 },
   title: {
@@ -43,19 +44,38 @@ const useStyles = makeStyles((colors) => ({
   navRow: { flexDirection: "row", gap: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xl },
   navBtn: { flex: 1 },
   errorText: { color: colors.error, textAlign: "center", marginTop: spacing.sm },
-}));
 
-function confirm(title: string, message: string, onOk: () => void) {
-  if (Platform.OS === "web") {
-    // eslint-disable-next-line no-alert
-    if (window.confirm(`${title}\n\n${message}`)) onOk();
-    return;
-  }
-  Alert.alert(title, message, [
-    { text: "Batal", style: "cancel" },
-    { text: "Ya, kumpulkan", onPress: onOk },
-  ]);
-}
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xl,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    padding: spacing.xl,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceSecondary,
+    gap: spacing.md,
+  },
+  modalTitle: {
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+  },
+  modalMessage: {
+    fontSize: typography.size.base,
+    color: colors.onSurfaceTertiary,
+    lineHeight: 22,
+  },
+  modalBtnRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+}));
 
 export default function PreTestScreen() {
   const styles = useStyles();
@@ -72,6 +92,7 @@ export default function PreTestScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState<TestAttempt | null>(null);
+  const [confirmConfig, setConfirmConfig] = useState<{ title: string; message: string } | null>(null);
 
   const load = useCallback(() => {
     setLoadError(null);
@@ -103,7 +124,6 @@ export default function PreTestScreen() {
     } catch (e) {
       const err = e as ApiError;
       if (err.status === 409) {
-        // Already attempted elsewhere; show the stored result.
         load();
       } else {
         setSubmitError("Gagal mengirim jawaban. Periksa koneksi dan coba lagi.");
@@ -117,14 +137,16 @@ export default function PreTestScreen() {
     const total = data?.questions.length ?? 0;
     const unanswered = total - Object.keys(answers).length;
     if (unanswered > 0) {
-      confirm(
-        "Masih ada soal kosong",
-        `${unanswered} soal belum dijawab dan akan dianggap salah. Kumpulkan sekarang?`,
-        submit,
-      );
+      setConfirmConfig({
+        title: "Masih ada soal kosong",
+        message: `${unanswered} dari ${total} soal belum dijawab dan akan dianggap salah. Yakin ingin mengumpulkan sekarang?`,
+      });
       return;
     }
-    confirm("Kumpulkan jawaban?", "Pre-test hanya bisa dikerjakan satu kali.", submit);
+    setConfirmConfig({
+      title: "Kumpulkan jawaban?",
+      message: "Pre-test hanya bisa dikerjakan satu kali untuk membuka modul berikutnya.",
+    });
   };
 
   if (loadError) {
@@ -141,12 +163,13 @@ export default function PreTestScreen() {
     );
   }
 
-  if (!data) return <LoadingSpinner fullScreen label="Menyiapkan soal..." />;
+  if (!data) return <LoadingSpinner fullScreen label="Memuat pre-test..." />;
 
-  const question = data.questions[index];
-  const total = data.questions.length;
-  const isLast = index === total - 1;
+  const questions = data.questions;
+  const total = questions.length;
+  const question = questions[index];
   const answeredCount = Object.keys(answers).length;
+  const isLast = index === total - 1;
 
   return (
     <ScreenContainer scroll testID="pretest-screen">
@@ -155,8 +178,8 @@ export default function PreTestScreen() {
           <Icon name="arrow-back" size={20} color={colors.onSurface} />
         </Pressable>
         <View style={styles.headerText}>
-          <Text style={styles.title}>Pre-Test</Text>
-          <Text style={styles.subtitle}>{data.course_title}</Text>
+          <Text style={styles.title}>{data.course_title}</Text>
+          <Text style={styles.subtitle}>Pre-Test</Text>
         </View>
       </View>
 
@@ -209,6 +232,38 @@ export default function PreTestScreen() {
       {phase === "result" && attempt ? (
         <PreTestResult attempt={attempt} courseTitle={data.course_title} onContinue={goBackToCourse} />
       ) : null}
+
+      {/* Confirmation Modal */}
+      <Modal
+        visible={confirmConfig !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setConfirmConfig(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setConfirmConfig(null)}>
+          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.modalTitle}>{confirmConfig?.title}</Text>
+            <Text style={styles.modalMessage}>{confirmConfig?.message}</Text>
+            <View style={styles.modalBtnRow}>
+              <Button
+                label="Batal"
+                variant="outline"
+                style={{ flex: 1 }}
+                onPress={() => setConfirmConfig(null)}
+              />
+              <Button
+                label="Kumpulkan"
+                variant="primary"
+                style={{ flex: 1 }}
+                onPress={() => {
+                  setConfirmConfig(null);
+                  submit();
+                }}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScreenContainer>
   );
 }
