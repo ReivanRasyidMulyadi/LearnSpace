@@ -14,7 +14,7 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 const useStyles = makeStyles((colors) => ({
   hero: {
-    backgroundColor: colors.brandPrimary,
+    backgroundColor: colors.surfaceInverse,
     borderRadius: radius.lg,
     padding: spacing.xl,
     alignItems: "center",
@@ -22,54 +22,115 @@ const useStyles = makeStyles((colors) => ({
     marginBottom: spacing.lg,
   },
   heroLabel: {
-    color: colors.onBrandPrimary,
-    opacity: 0.9,
-    fontSize: typography.size.sm,
+    color: colors.onSurfaceInverse,
+    opacity: 0.8,
+    fontSize: typography.size.xs,
     fontWeight: typography.weight.medium,
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   score: {
-    color: colors.onBrandPrimary,
-    fontSize: 56,
+    color: colors.onSurfaceInverse,
+    fontSize: 52,
     fontWeight: typography.weight.display,
-    lineHeight: 64,
+    lineHeight: 60,
+    letterSpacing: -1.5,
   },
-  heroSub: { color: colors.onBrandPrimary, fontSize: typography.size.lg, fontWeight: typography.weight.bold },
-  heroMsg: {
-    color: colors.onBrandPrimary,
-    opacity: 0.9,
-    textAlign: "center",
-    marginTop: spacing.sm,
+  heroSub: {
+    color: colors.onSurfaceInverse,
     fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+  },
+  heroMsg: {
+    color: colors.onSurfaceInverse,
+    opacity: 0.85,
+    textAlign: "center",
+    marginTop: spacing.xs,
+    fontSize: typography.size.sm,
+    lineHeight: 20,
+    maxWidth: 380,
   },
   unlock: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     marginBottom: spacing.lg,
+    backgroundColor: "#ECFDF5",
+    borderColor: "#A7F3D0",
   },
-  unlockText: { flex: 1, color: colors.onSurface, fontSize: typography.size.base, fontWeight: typography.weight.medium },
+  unlockIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: "#D1FAE5",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  unlockText: {
+    flex: 1,
+    color: "#065F46",
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
+    lineHeight: 20,
+  },
   sectionTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
     marginBottom: spacing.md,
+    letterSpacing: -0.3,
   },
-  reviewCard: { marginBottom: spacing.md, gap: spacing.sm },
-  reviewHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
-  reviewQ: { flex: 1, color: colors.onSurface, fontWeight: typography.weight.bold, fontSize: typography.size.base },
-  answerRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  answerLabel: { color: colors.muted, fontSize: typography.size.sm, width: 84 },
-  answerText: { flex: 1, color: colors.onSurface, fontSize: typography.size.base },
-  answerCorrect: { color: colors.success, fontWeight: typography.weight.bold },
-  answerWrong: { color: colors.error, fontWeight: typography.weight.bold },
-  cta: { marginTop: spacing.md, marginBottom: spacing.xl },
+  reviewCard: {
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  reviewHead: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  reviewQ: {
+    flex: 1,
+    color: colors.onSurface,
+    fontWeight: typography.weight.semibold,
+    fontSize: typography.size.base,
+    lineHeight: 22,
+  },
+  answerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingTop: 2,
+  },
+  answerLabel: {
+    color: colors.muted,
+    fontSize: typography.size.xs,
+    width: 76,
+  },
+  answerText: {
+    flex: 1,
+    color: colors.onSurface,
+    fontSize: typography.size.sm,
+  },
+  answerCorrect: {
+    color: "#047857",
+    fontWeight: typography.weight.medium,
+  },
+  answerWrong: {
+    color: "#B91C1C",
+    fontWeight: typography.weight.medium,
+  },
+  cta: {
+    marginTop: spacing.md,
+    marginBottom: spacing.xl,
+  },
 }));
 
 function feedback(pct: number): string {
-  if (pct >= 80) return "Luar biasa! Pengetahuan awalmu sudah kuat. Materi akan membantumu menyempurnakannya.";
-  if (pct >= 50) return "Bagus! Kamu sudah punya dasar yang cukup. Yuk perdalam lewat materi dan video.";
-  return "Tidak masalah — ini baru titik awal. Materi berikutnya dirancang untuk membantumu naik level.";
+  if (pct >= 80) return "Luar biasa! Pengetahuan awalmu sudah sangat kuat. Silakan lanjut ke materi.";
+  if (pct >= 50) return "Bagus! Kamu sudah memiliki dasar yang cukup. Lanjutkan modul untuk memperdalam.";
+  return "Titik awal yang baik! Seluruh modul kini terbuka agar kamu dapat belajar bertahap.";
 }
 
 export function PreTestResult({ attempt, courseTitle, onContinue }: Props) {
@@ -84,36 +145,39 @@ export function PreTestResult({ attempt, courseTitle, onContinue }: Props) {
         <Text style={styles.heroLabel}>HASIL PRE-TEST {courseTitle.toUpperCase()}</Text>
         <Text style={styles.score} testID="pretest-score">{attempt.percentage}%</Text>
         <Text style={styles.heroSub}>
-          {attempt.score} dari {attempt.total} benar
+          {attempt.score} dari {attempt.total} soal benar
         </Text>
         <Text style={styles.heroMsg}>{feedback(attempt.percentage)}</Text>
       </View>
 
-      <Card tone="brandTertiary" style={styles.unlock}>
-        <Icon name="lock-open" size={24} color={colors.onBrandTertiary} />
+      <Card style={styles.unlock}>
+        <View style={styles.unlockIconWrap}>
+          <Icon name="lock-open-outline" size={20} color="#047857" />
+        </View>
         <Text style={styles.unlockText}>
-          Semua modul {courseTitle} kini terbuka. Lanjutkan ke Materi!
+          Semua modul {courseTitle} kini terbuka. Lanjutkan ke materi pembelajaran!
         </Text>
       </Card>
 
-      <Text style={styles.sectionTitle}>Pembahasan</Text>
+      <Text style={styles.sectionTitle}>Pembahasan Soal</Text>
       {attempt.review.map((r) => (
-        <Card key={r.question_id} style={styles.reviewCard} testID={`review-${r.question_id}`}>
+        <Card key={r.question_id} style={styles.reviewCard}>
           <View style={styles.reviewHead}>
-            <Text style={styles.reviewQ}>
-              {r.order}. {r.text}
-            </Text>
-            <Badge label={r.is_correct ? "Benar" : "Salah"} tone={r.is_correct ? "success" : "error"} />
+            <Text style={styles.reviewQ}>{r.text}</Text>
+            <Badge
+              label={r.is_correct ? "Benar" : "Salah"}
+              tone={r.is_correct ? "success" : "error"}
+            />
           </View>
           <View style={styles.answerRow}>
-            <Text style={styles.answerLabel}>Jawabanmu</Text>
+            <Text style={styles.answerLabel}>Jawabanmu:</Text>
             <Text style={[styles.answerText, r.is_correct ? styles.answerCorrect : styles.answerWrong]}>
               {fmt(r.selected_index, r.options)}
             </Text>
           </View>
           {!r.is_correct ? (
             <View style={styles.answerRow}>
-              <Text style={styles.answerLabel}>Kunci</Text>
+              <Text style={styles.answerLabel}>Kunci:</Text>
               <Text style={[styles.answerText, styles.answerCorrect]}>
                 {fmt(r.correct_index, r.options)}
               </Text>
@@ -123,12 +187,12 @@ export function PreTestResult({ attempt, courseTitle, onContinue }: Props) {
       ))}
 
       <Button
-        label="Lanjut ke Materi"
+        label="Lanjut ke Materi Kelas"
         fullWidth
         style={styles.cta}
         onPress={onContinue}
         testID="pretest-continue"
-        leftIcon={<Icon name="arrow-forward" size={18} color={colors.onBrandPrimary} />}
+        leftIcon={<Icon name="arrow-forward" size={16} color={colors.onBrandPrimary} />}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, RefreshControl, Text, View } from "react-native";
+import { Platform, Pressable, RefreshControl, Text, View } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import {
@@ -30,20 +30,22 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   headerTitle: {
     flex: 1,
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
 
   topic: { marginBottom: spacing.lg, gap: spacing.sm },

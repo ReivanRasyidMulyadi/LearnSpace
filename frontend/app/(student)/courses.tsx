@@ -16,28 +16,37 @@ import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
 import type { CourseCatalogItem } from "@/src/types/course";
 
 const SUBJECT_CONFIG: Record<string, { icon: IoniconName; color: string; bg: string }> = {
-  math: { icon: "calculator", color: "#FF715B", bg: "#FDE6E2" },
-  science: { icon: "flask", color: "#34C759", bg: "#E8F8EE" },
-  english: { icon: "globe", color: "#007AFF", bg: "#E5F2FF" },
-  history: { icon: "time", color: "#AF52DE", bg: "#F5E8FC" },
+  math: { icon: "calculator-outline", color: "#0F172A", bg: "#F1F5F9" },
+  science: { icon: "flask-outline", color: "#0F172A", bg: "#F1F5F9" },
+  english: { icon: "globe-outline", color: "#0F172A", bg: "#F1F5F9" },
+  history: { icon: "time-outline", color: "#0F172A", bg: "#F1F5F9" },
 };
 
-const DEFAULT_CONFIG = { icon: "book" as IoniconName, color: "#FF715B", bg: "#FDE6E2" };
+const DEFAULT_CONFIG = { icon: "book-outline" as IoniconName, color: "#0F172A", bg: "#F1F5F9" };
 
 const useStyles = makeStyles((colors) => ({
-  header: { paddingTop: spacing.md, marginBottom: spacing.lg },
+  header: {
+    paddingTop: spacing.md,
+    marginBottom: spacing.lg,
+    gap: 2,
+  },
   title: {
     fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.4,
   },
-  subtitle: { color: colors.muted, fontSize: typography.size.base },
+  subtitle: {
+    color: colors.muted,
+    fontSize: typography.size.base,
+  },
   card: {
     marginBottom: spacing.md,
     gap: spacing.sm,
+    padding: spacing.lg,
   },
   cardPressable: {
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   cardMainRow: {
     flexDirection: "row",
@@ -45,13 +54,18 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   iconWrap: {
-    width: 52,
-    height: 52,
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  body: { flex: 1, gap: 2 },
+  body: {
+    flex: 1,
+    gap: 3,
+  },
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -59,11 +73,14 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.xs,
   },
   name: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
   },
-  meta: { color: colors.muted, fontSize: typography.size.sm },
+  meta: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+  },
   progressRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -72,7 +89,7 @@ const useStyles = makeStyles((colors) => ({
   },
   track: {
     flex: 1,
-    height: 6,
+    height: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceTertiary,
     overflow: "hidden",
@@ -83,10 +100,10 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.brandPrimary,
   },
   progressText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
     color: colors.muted,
-    minWidth: 36,
+    minWidth: 32,
     textAlign: "right",
   },
 }));
@@ -128,7 +145,7 @@ export default function CoursesScreen() {
           <Text style={styles.title}>Kelas</Text>
         </View>
         <EmptyState
-          icon="alert-circle"
+          icon="alert-circle-outline"
           title="Terjadi Kesalahan"
           description={error}
           actionLabel="Muat Ulang"
@@ -161,13 +178,13 @@ export default function CoursesScreen() {
           <Pressable
             key={s.id}
             onPress={() => router.push(`/course/${s.id}`)}
-            style={styles.cardPressable}
+            style={({ pressed }) => [styles.cardPressable, pressed && { opacity: 0.85 }]}
             testID={`course-card-${s.id}`}
           >
-            <Card elevated style={styles.card}>
+            <Card style={styles.card}>
               <View style={styles.cardMainRow}>
                 <View style={[styles.iconWrap, { backgroundColor: conf.bg }]}>
-                  <Icon name={conf.icon} size={24} color={conf.color} />
+                  <Icon name={conf.icon} size={22} color={conf.color} />
                 </View>
                 <View style={styles.body}>
                   <View style={styles.titleRow}>
@@ -180,7 +197,7 @@ export default function CoursesScreen() {
                   </View>
                   <Text style={styles.meta}>{s.total_modules} modul pembelajaran</Text>
                 </View>
-                <Icon name="chevron-forward" size={20} color={colors.muted} />
+                <Icon name="chevron-forward" size={18} color={colors.muted} />
               </View>
 
               {s.progress > 0 ? (

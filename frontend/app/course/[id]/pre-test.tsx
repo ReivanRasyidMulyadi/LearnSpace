@@ -23,31 +23,37 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
-  headerText: { flex: 1 },
+  headerText: { flex: 1, gap: 2 },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
   subtitle: { color: colors.muted, fontSize: typography.size.sm },
-  quizBody: { gap: spacing.lg },
-  navRow: { flexDirection: "row", gap: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xl },
+  quizBody: { gap: spacing.md },
+  navRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xl,
+  },
   navBtn: { flex: 1 },
-  errorText: { color: colors.error, textAlign: "center", marginTop: spacing.sm },
+  errorText: { color: colors.error, textAlign: "center", marginTop: spacing.sm, fontSize: typography.size.sm },
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.xl,
@@ -58,12 +64,16 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.xl,
     borderRadius: radius.lg,
     backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
     gap: spacing.md,
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" } as any) : {}),
   },
   modalTitle: {
-    fontSize: typography.size.xl,
+    fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
   modalMessage: {
     fontSize: typography.size.base,
@@ -73,7 +83,7 @@ const useStyles = makeStyles((colors) => ({
   modalBtnRow: {
     flexDirection: "row",
     gap: spacing.md,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
 }));
 
@@ -153,7 +163,7 @@ export default function PreTestScreen() {
     return (
       <ScreenContainer testID="pretest-error">
         <EmptyState
-          icon="cloud-offline"
+          icon="cloud-offline-outline"
           title="Tidak bisa memuat pre-test"
           description={loadError}
           actionLabel="Coba lagi"
@@ -175,7 +185,7 @@ export default function PreTestScreen() {
     <ScreenContainer scroll testID="pretest-screen">
       <View style={styles.header}>
         <Pressable onPress={goBackToCourse} style={styles.backBtn} testID="pretest-back">
-          <Icon name="arrow-back" size={20} color={colors.onSurface} />
+          <Icon name="arrow-back" size={18} color={colors.onSurface} />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={styles.title}>{data.course_title}</Text>

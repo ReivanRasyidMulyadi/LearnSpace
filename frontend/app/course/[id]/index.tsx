@@ -24,59 +24,102 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
-  headerText: { flex: 1 },
+  headerText: { flex: 1, gap: 2 },
   title: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
-  subtitle: { color: colors.muted, fontSize: typography.size.base },
+  subtitle: { color: colors.muted, fontSize: typography.size.sm },
 
-  progressCard: { marginBottom: spacing.lg, gap: spacing.sm },
-  progressRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  progressLabel: { color: colors.onSurface, fontWeight: typography.weight.bold, fontSize: typography.size.base },
-  progressValue: { color: colors.onBrandTertiary, fontWeight: typography.weight.display, fontSize: typography.size.lg },
-  track: { height: 10, borderRadius: radius.pill, backgroundColor: colors.surfaceSecondary, overflow: "hidden" },
-  fill: { height: "100%", borderRadius: radius.pill, backgroundColor: colors.brandPrimary },
-  gateHint: { color: colors.onSurfaceTertiary, fontSize: typography.size.sm },
+  progressCard: {
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  progressRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  progressLabel: {
+    color: colors.onSurface,
+    fontWeight: typography.weight.medium,
+    fontSize: typography.size.sm,
+  },
+  progressValue: {
+    color: colors.onSurface,
+    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+  },
+  track: {
+    height: 4,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceTertiary,
+    overflow: "hidden",
+  },
+  fill: {
+    height: "100%",
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandPrimary,
+  },
+  gateHint: {
+    color: colors.muted,
+    fontSize: typography.size.xs,
+  },
 
   moduleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     marginBottom: spacing.md,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    padding: spacing.md,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   iconWrap: {
-    width: 48,
-    height: 48,
+    width: 42,
+    height: 42,
     borderRadius: radius.md,
-    backgroundColor: colors.brandTertiary,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  iconLocked: { backgroundColor: colors.surfaceTertiary },
-  iconDone: { backgroundColor: colors.success },
+  iconLocked: {
+    backgroundColor: colors.surfaceTertiary,
+    borderColor: colors.border,
+  },
+  iconDone: {
+    backgroundColor: "#ECFDF5",
+    borderColor: "#A7F3D0",
+  },
   moduleBody: { flex: 1, gap: 2 },
   moduleTitleRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   moduleTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
   },
-  moduleDescription: { color: colors.muted, fontSize: typography.size.sm },
-  locked: { opacity: 0.55 },
-  hint: { color: colors.muted, fontSize: typography.size.sm, textAlign: "center", marginVertical: spacing.md },
+  moduleDescription: { color: colors.muted, fontSize: typography.size.xs },
+  locked: { opacity: 0.5 },
+  hint: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+    textAlign: "center",
+    marginVertical: spacing.md,
+  },
 }));
 
 export default function CourseDetail() {
@@ -98,7 +141,6 @@ export default function CourseDetail() {
       .catch(() => setError("Kelas tidak ditemukan atau gagal dimuat."));
   }, [courseId]);
 
-  // Refetch whenever we return from the pre-test so unlock state is fresh.
   useFocusEffect(
     useCallback(() => {
       if (courseId) load();
@@ -126,10 +168,10 @@ export default function CourseDetail() {
       <ScreenContainer testID="course-detail">
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn} testID="course-back">
-            <Icon name="arrow-back" size={20} color={colors.onSurface} />
+            <Icon name="arrow-back" size={18} color={colors.onSurface} />
           </Pressable>
         </View>
-        <EmptyState icon="alert-circle" title="Ups" description={error} actionLabel="Coba lagi" onAction={load} />
+        <EmptyState icon="alert-circle-outline" title="Ups" description={error} actionLabel="Coba lagi" onAction={load} />
       </ScreenContainer>
     );
   }
@@ -140,7 +182,7 @@ export default function CourseDetail() {
     <ScreenContainer scroll testID="course-detail">
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} testID="course-back">
-          <Icon name="arrow-back" size={20} color={colors.onSurface} />
+          <Icon name="arrow-back" size={18} color={colors.onSurface} />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={styles.title}>{progress.title}</Text>
@@ -148,7 +190,7 @@ export default function CourseDetail() {
         </View>
       </View>
 
-      <Card tone="brandTertiary" style={styles.progressCard} testID="course-progress-card">
+      <Card style={styles.progressCard} testID="course-progress-card">
         <View style={styles.progressRow}>
           <Text style={styles.progressLabel}>
             {progress.completed_count} dari {progress.total_modules} modul selesai
@@ -164,13 +206,18 @@ export default function CourseDetail() {
       </Card>
 
       {progress.modules.map((m) => (
-        <Pressable key={m.key} onPress={() => openModule(m)} testID={`module-${m.key}`}>
-          <Card elevated style={[styles.moduleRow, m.locked && styles.locked] as any}>
+        <Pressable
+          key={m.key}
+          onPress={() => openModule(m)}
+          testID={`module-${m.key}`}
+          style={({ pressed }) => [pressed && { opacity: 0.85 }]}
+        >
+          <Card style={[styles.moduleRow, m.locked && styles.locked] as any}>
             <View style={[styles.iconWrap, m.locked && styles.iconLocked, m.completed && styles.iconDone]}>
               <Icon
-                name={m.locked ? "lock-closed" : m.completed ? "checkmark" : (m.icon as IoniconName)}
-                size={22}
-                color={m.locked ? colors.muted : m.completed ? colors.onSuccess : colors.onBrandTertiary}
+                name={m.locked ? "lock-closed-outline" : m.completed ? "checkmark" : "book-outline"}
+                size={20}
+                color={m.locked ? colors.muted : m.completed ? "#047857" : colors.onSurface}
               />
             </View>
             <View style={styles.moduleBody}>
@@ -183,7 +230,7 @@ export default function CourseDetail() {
               </View>
               <Text style={styles.moduleDescription}>{m.description}</Text>
             </View>
-            <Icon name="chevron-forward" size={20} color={colors.muted} />
+            <Icon name="chevron-forward" size={18} color={colors.muted} />
           </Card>
         </Pressable>
       ))}

@@ -28,59 +28,65 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
-  headerText: { flex: 1 },
+  headerText: { flex: 1, gap: 2 },
   title: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
-    color: colors.onSurface,
-  },
-  subtitle: { color: colors.muted, fontSize: typography.size.base },
-
-  composer: { marginBottom: spacing.lg, gap: spacing.sm },
-  composerTitle: {
-    fontSize: typography.size.lg,
+    fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+    letterSpacing: -0.3,
+  },
+  subtitle: { color: colors.muted, fontSize: typography.size.sm },
+
+  composer: {
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  composerTitle: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
     marginBottom: spacing.xs,
   },
   bodyInput: {
-    minHeight: 92,
-    borderRadius: radius.lg,
-    paddingTop: spacing.md,
+    minHeight: 88,
+    borderRadius: radius.md,
+    paddingTop: spacing.sm,
     textAlignVertical: "top",
   },
 
   item: {
     marginBottom: spacing.md,
     gap: spacing.sm,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    padding: spacing.lg,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   itemHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  authorBlock: { flex: 1 },
+  authorBlock: { flex: 1, gap: 1 },
   authorName: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: colors.onSurface,
+  },
+  time: { color: colors.muted, fontSize: typography.size.xs },
+  itemTitle: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
   },
-  time: { color: colors.muted, fontSize: typography.size.sm },
-  itemTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
-    color: colors.onSurface,
-  },
-  itemBody: { color: colors.onSurfaceTertiary, fontSize: typography.size.base },
+  itemBody: { color: colors.onSurfaceTertiary, fontSize: typography.size.sm, lineHeight: 20 },
   itemFoot: { flexDirection: "row", alignItems: "center", gap: spacing.xs, marginTop: spacing.xs },
-  footText: { color: colors.muted, fontSize: typography.size.sm },
+  footText: { color: colors.muted, fontSize: typography.size.xs, fontWeight: typography.weight.medium },
 }));
 
 function roleBadge(role: "STUDENT" | "ADMIN") {
@@ -158,10 +164,10 @@ export default function DiscussionList() {
       <ScreenContainer testID="discussion-list">
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn} testID="discussion-back">
-            <Icon name="arrow-back" size={20} color={colors.onSurface} />
+            <Icon name="arrow-back" size={18} color={colors.onSurface} />
           </Pressable>
         </View>
-        <EmptyState icon="alert-circle" title="Ups" description={error} actionLabel="Coba lagi" onAction={load} />
+        <EmptyState icon="alert-circle-outline" title="Ups" description={error} actionLabel="Coba lagi" onAction={load} />
       </ScreenContainer>
     );
   }
@@ -180,7 +186,7 @@ export default function DiscussionList() {
     >
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} testID="discussion-back">
-          <Icon name="arrow-back" size={20} color={colors.onSurface} />
+          <Icon name="arrow-back" size={18} color={colors.onSurface} />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={styles.title}>Diskusi</Text>
@@ -188,17 +194,17 @@ export default function DiscussionList() {
         </View>
       </View>
 
-      <Card elevated style={styles.composer} testID="discussion-composer">
+      <Card style={styles.composer} testID="discussion-composer">
         <Text style={styles.composerTitle}>Mulai diskusi baru</Text>
         <Input
-          placeholder="Judul diskusi"
+          placeholder="Judul topik diskusi"
           value={title}
           onChangeText={setTitle}
           maxLength={140}
           testID="discussion-title-input"
         />
         <Input
-          placeholder="Tulis pertanyaan atau topikmu..."
+          placeholder="Tulis pertanyaan atau uraian topikmu..."
           value={body}
           onChangeText={setBody}
           multiline
@@ -217,7 +223,7 @@ export default function DiscussionList() {
 
       {items.length === 0 ? (
         <EmptyState
-          icon="chatbubbles"
+          icon="chatbubbles-outline"
           title="Belum ada diskusi"
           description="Jadilah yang pertama memulai diskusi di kelas ini."
         />
@@ -229,10 +235,11 @@ export default function DiscussionList() {
               key={d.discussion_id}
               onPress={() => router.push(`/course/${courseId}/discussion/${d.discussion_id}`)}
               testID={`discussion-item-${d.discussion_id}`}
+              style={({ pressed }) => [pressed && { opacity: 0.85 }]}
             >
-              <Card elevated style={styles.item}>
+              <Card style={styles.item}>
                 <View style={styles.itemHead}>
-                  <Avatar name={d.author.name} uri={d.author.picture} size={40} />
+                  <Avatar name={d.author.name} uri={d.author.picture} size={36} />
                   <View style={styles.authorBlock}>
                     <Text style={styles.authorName}>{d.author.name}</Text>
                     <Text style={styles.time}>{formatRelative(d.created_at)}</Text>
@@ -244,7 +251,7 @@ export default function DiscussionList() {
                   {d.body}
                 </Text>
                 <View style={styles.itemFoot}>
-                  <Icon name="chatbubble-outline" size={16} color={colors.muted} />
+                  <Icon name="chatbubble-outline" size={14} color={colors.muted} />
                   <Text style={styles.footText}>{d.comment_count} balasan</Text>
                 </View>
               </Card>

@@ -8,11 +8,15 @@ interface Props {
 }
 
 const useStyles = makeStyles((colors) => ({
-  wrap: { gap: spacing.sm },
+  wrap: { gap: spacing.xs },
   row: { flexDirection: "row", justifyContent: "space-between" },
-  label: { color: colors.muted, fontSize: typography.size.sm, fontWeight: typography.weight.medium },
+  label: {
+    color: colors.muted,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+  },
   track: {
-    height: 10,
+    height: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceTertiary,
     overflow: "hidden",

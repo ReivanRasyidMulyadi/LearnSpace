@@ -12,20 +12,42 @@ export interface BadgeProps {
 const useStyles = makeStyles((colors) => ({
   base: {
     alignSelf: "flex-start",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  text: { fontSize: typography.size.sm, fontWeight: typography.weight.bold },
-  brand: { backgroundColor: colors.brandTertiary },
-  textBrand: { color: colors.onBrandTertiary },
-  success: { backgroundColor: colors.success },
-  textSuccess: { color: colors.onSuccess },
-  warning: { backgroundColor: colors.warning },
-  textWarning: { color: colors.onWarning },
-  error: { backgroundColor: colors.error },
-  textError: { color: colors.onError },
-  neutral: { backgroundColor: colors.surfaceTertiary },
+  text: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+    letterSpacing: 0.2,
+  },
+  brand: {
+    backgroundColor: "#EFF6FF",
+    borderColor: "#DBEAFE",
+  },
+  textBrand: { color: "#1D4ED8" },
+  success: {
+    backgroundColor: "#ECFDF5",
+    borderColor: "#A7F3D0",
+  },
+  textSuccess: { color: "#047857" },
+  warning: {
+    backgroundColor: "#FFFBEB",
+    borderColor: "#FDE68A",
+  },
+  textWarning: { color: "#B45309" },
+  error: {
+    backgroundColor: "#FEF2F2",
+    borderColor: "#FECACA",
+  },
+  textError: { color: "#B91C1C" },
+  neutral: {
+    backgroundColor: colors.surfaceTertiary,
+    borderColor: colors.border,
+  },
   textNeutral: { color: colors.onSurfaceTertiary },
 }));
 
@@ -38,6 +60,7 @@ export function Badge({ label, tone = "brand", style }: BadgeProps) {
     | "textWarning"
     | "textError"
     | "textNeutral";
+
   return (
     <View style={[styles.base, styles[containerKey], style]}>
       <Text style={[styles.text, styles[textKey]]}>{label}</Text>

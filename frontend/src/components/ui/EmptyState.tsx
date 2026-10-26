@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { makeStyles, spacing, typography } from "@/src/theme";
+import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
 import { Button } from "./Button";
 import { Icon, type IoniconName } from "./Icon";
 
@@ -20,10 +20,12 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
   },
   iconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.brandTertiary,
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -37,15 +39,19 @@ const useStyles = makeStyles((colors) => ({
     fontSize: typography.size.base,
     color: colors.muted,
     textAlign: "center",
+    maxWidth: 360,
+    lineHeight: 22,
   },
 }));
 
 export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   const styles = useStyles();
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Icon name={icon} size={32} color="#D94A38" />
+        <Icon name={icon} size={28} color={colors.onSurfaceTertiary} />
       </View>
       <Text style={styles.title}>{title}</Text>
       {description ? <Text style={styles.description}>{description}</Text> : null}

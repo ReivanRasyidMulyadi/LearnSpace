@@ -13,59 +13,73 @@ interface Props {
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 const useStyles = makeStyles((colors) => ({
+  card: {
+    padding: spacing.xl,
+  },
   question: {
-    fontSize: typography.size.xl,
+    fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
-    lineHeight: 28,
+    lineHeight: 26,
     marginBottom: spacing.lg,
+    letterSpacing: -0.2,
   },
   option: {
-    minHeight: 56,
+    minHeight: 50,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.md,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surfaceSecondary,
     marginBottom: spacing.sm,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   optionSelected: {
     borderColor: colors.brandPrimary,
-    backgroundColor: colors.brandTertiary,
+    backgroundColor: colors.surfaceTertiary,
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #0F172A" } as any) : {}),
   },
   letter: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
     backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  letterSelected: { backgroundColor: colors.brandPrimary },
-  letterText: {
-    fontWeight: typography.weight.bold,
-    color: colors.onSurfaceTertiary,
-    fontSize: typography.size.base,
+  letterSelected: {
+    backgroundColor: colors.brandPrimary,
+    borderColor: colors.brandPrimary,
   },
-  letterTextSelected: { color: colors.onBrandPrimary },
+  letterText: {
+    fontWeight: typography.weight.semibold,
+    color: colors.onSurface,
+    fontSize: typography.size.xs,
+  },
+  letterTextSelected: {
+    color: colors.onBrandPrimary,
+  },
   optionText: {
     flex: 1,
-    fontSize: typography.size.lg,
+    fontSize: typography.size.base,
     color: colors.onSurface,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.regular,
+    lineHeight: 22,
   },
 }));
 
 export function QuestionCard({ question, selectedIndex, onSelect }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
+
   return (
-    <Card elevated testID={`question-${question.question_id}`}>
+    <Card style={styles.card} testID={`question-${question.question_id}`}>
       <Text style={styles.question}>{question.text}</Text>
       {question.options.map((opt, i) => {
         const selected = selectedIndex === i;
@@ -89,7 +103,7 @@ export function QuestionCard({ question, selectedIndex, onSelect }: Props) {
             </View>
             <Text style={styles.optionText}>{opt}</Text>
             {selected ? (
-              <Icon name="checkmark-circle" size={22} color={colors.brandPrimary} />
+              <Icon name="checkmark-circle" size={20} color={colors.brandPrimary} />
             ) : null}
           </Pressable>
         );

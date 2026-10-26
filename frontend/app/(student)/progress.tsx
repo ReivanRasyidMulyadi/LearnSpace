@@ -23,13 +23,21 @@ interface BadgeItem {
 }
 
 const useStyles = makeStyles((colors) => ({
-  header: { paddingTop: spacing.md, marginBottom: spacing.lg },
+  header: {
+    paddingTop: spacing.md,
+    marginBottom: spacing.lg,
+    gap: 2,
+  },
   title: {
     fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.4,
   },
-  subtitle: { color: colors.muted, fontSize: typography.size.base },
+  subtitle: {
+    color: colors.muted,
+    fontSize: typography.size.base,
+  },
 
   grid: {
     flexDirection: "row",
@@ -40,6 +48,7 @@ const useStyles = makeStyles((colors) => ({
   metricCard: {
     width: "47%",
     gap: spacing.xs,
+    padding: spacing.md,
   },
   metricHeader: {
     flexDirection: "row",
@@ -47,11 +56,16 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "space-between",
   },
   metricValue: {
-    fontSize: typography.size.display,
-    fontWeight: typography.weight.display,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.4,
   },
-  metricLabel: { color: colors.muted, fontSize: typography.size.sm },
+  metricLabel: {
+    color: colors.muted,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+  },
 
   sectionHeader: {
     marginBottom: spacing.md,
@@ -60,12 +74,14 @@ const useStyles = makeStyles((colors) => ({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
 
   courseCard: {
     marginBottom: spacing.md,
     gap: spacing.sm,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    padding: spacing.lg,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   courseTopRow: {
     flexDirection: "row",
@@ -74,11 +90,11 @@ const useStyles = makeStyles((colors) => ({
   },
   courseTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
   },
   track: {
-    height: 8,
+    height: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceTertiary,
     overflow: "hidden",
@@ -95,12 +111,12 @@ const useStyles = makeStyles((colors) => ({
   },
   courseMetaText: {
     color: colors.muted,
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs,
   },
   coursePercentText: {
-    color: colors.brandPrimary,
-    fontWeight: typography.weight.bold,
-    fontSize: typography.size.sm,
+    color: colors.onSurface,
+    fontWeight: typography.weight.medium,
+    fontSize: typography.size.xs,
   },
 
   badgeCard: {
@@ -108,14 +124,17 @@ const useStyles = makeStyles((colors) => ({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+    padding: spacing.md,
   },
   badgeLocked: {
-    opacity: 0.6,
+    opacity: 0.55,
   },
   badgeIconWrap: {
-    width: 48,
-    height: 48,
+    width: 42,
+    height: 42,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -127,12 +146,13 @@ const useStyles = makeStyles((colors) => ({
   },
   badgeTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
   },
   badgeDesc: {
     color: colors.muted,
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs,
+    lineHeight: 18,
   },
 }));
 
@@ -191,28 +211,28 @@ export default function ProgressScreen() {
       id: "first_step",
       title: "Langkah Pertama",
       description: "Menyelesaikan Pre-Test pertamamu di LearnSpace.",
-      icon: "ribbon",
+      icon: "ribbon-outline",
       unlocked: completedPreTests >= 1,
     },
     {
       id: "streak_starter",
       title: "Penjelajah Ilmu",
       description: "Menyelesaikan Pre-Test pada minimal 2 mata pelajaran.",
-      icon: "flame",
+      icon: "flame-outline",
       unlocked: completedPreTests >= 2,
     },
     {
       id: "master_pretest",
       title: "Kolektor Modul",
       description: "Menyelesaikan semua Pre-Test mata pelajaran.",
-      icon: "trophy",
+      icon: "trophy-outline",
       unlocked: completedPreTests === totalCourses && totalCourses > 0,
     },
     {
       id: "star_student",
       title: "Bintang Belajar",
       description: "Mencapai progres rata-rata di atas 50%.",
-      icon: "star",
+      icon: "star-outline",
       unlocked: avgProgress >= 50,
     },
   ];
@@ -232,36 +252,36 @@ export default function ProgressScreen() {
 
       {/* Bento Grid Metrics */}
       <View style={styles.grid}>
-        <Card tone="tertiary" style={styles.metricCard}>
+        <Card style={styles.metricCard}>
           <View style={styles.metricHeader}>
             <Text style={styles.metricLabel}>Rata-rata Progres</Text>
-            <Icon name="pie-chart" size={18} color="#FF715B" />
+            <Icon name="pie-chart-outline" size={16} color={colors.muted} />
           </View>
           <Text style={styles.metricValue}>{avgProgress}%</Text>
         </Card>
 
-        <Card tone="tertiary" style={styles.metricCard}>
+        <Card style={styles.metricCard}>
           <View style={styles.metricHeader}>
             <Text style={styles.metricLabel}>Pre-Test Selesai</Text>
-            <Icon name="checkmark-done-circle" size={18} color="#34C759" />
+            <Icon name="checkmark-circle-outline" size={16} color={colors.muted} />
           </View>
           <Text style={styles.metricValue}>
             {completedPreTests}/{totalCourses}
           </Text>
         </Card>
 
-        <Card tone="tertiary" style={styles.metricCard}>
+        <Card style={styles.metricCard}>
           <View style={styles.metricHeader}>
             <Text style={styles.metricLabel}>Streak Harian</Text>
-            <Icon name="flame" size={18} color="#FF9500" />
+            <Icon name="flame-outline" size={16} color={colors.muted} />
           </View>
           <Text style={styles.metricValue}>{dashData?.streak_days ?? 0} hari</Text>
         </Card>
 
-        <Card tone="tertiary" style={styles.metricCard}>
+        <Card style={styles.metricCard}>
           <View style={styles.metricHeader}>
             <Text style={styles.metricLabel}>Lencana Diraih</Text>
-            <Icon name="medal" size={18} color="#AF52DE" />
+            <Icon name="medal-outline" size={16} color={colors.muted} />
           </View>
           <Text style={styles.metricValue}>
             {badges.filter((b) => b.unlocked).length}/{badges.length}
@@ -279,8 +299,9 @@ export default function ProgressScreen() {
           key={c.id}
           onPress={() => router.push(`/course/${c.id}`)}
           testID={`progress-course-${c.id}`}
+          style={({ pressed }) => [pressed && { opacity: 0.85 }]}
         >
-          <Card elevated style={styles.courseCard}>
+          <Card style={styles.courseCard}>
             <View style={styles.courseTopRow}>
               <Text style={styles.courseTitle}>{c.title}</Text>
               <Badge
@@ -309,20 +330,19 @@ export default function ProgressScreen() {
       {badges.map((b) => (
         <Card
           key={b.id}
-          elevated
           style={[styles.badgeCard, !b.unlocked ? styles.badgeLocked : null] as any}
           testID={`badge-${b.id}`}
         >
           <View
             style={[
               styles.badgeIconWrap,
-              { backgroundColor: b.unlocked ? colors.brandTertiary : colors.surfaceTertiary },
+              { backgroundColor: b.unlocked ? colors.surfaceTertiary : colors.surfaceSecondary },
             ]}
           >
             <Icon
               name={b.icon}
-              size={24}
-              color={b.unlocked ? colors.brandPrimary : colors.muted}
+              size={20}
+              color={b.unlocked ? colors.onSurface : colors.muted}
             />
           </View>
           <View style={styles.badgeBody}>

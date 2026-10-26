@@ -10,51 +10,109 @@ import {
 } from "@/src/components/ui";
 import { useAuth } from "@/src/hooks/useAuth";
 import { apiFetch } from "@/src/services/api";
-import { makeStyles, radius, spacing, typography } from "@/src/theme";
+import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
 import type { StudentDashboardData } from "@/src/types/course";
 
 const useStyles = makeStyles((colors) => ({
-  greeting: { marginTop: spacing.md, marginBottom: spacing.lg },
-  hello: { color: colors.muted, fontSize: typography.size.base },
-  name: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
-    color: colors.onSurface,
-  },
-  hero: {
-    backgroundColor: colors.brandPrimary,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-    gap: spacing.sm,
+  greeting: {
+    paddingTop: spacing.md,
     marginBottom: spacing.lg,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    gap: 2,
   },
-  heroLabel: {
-    color: colors.onBrandPrimary,
-    opacity: 0.9,
+  hello: {
+    color: colors.muted,
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
   },
+  name: {
+    fontSize: typography.size.xxl,
+    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+    letterSpacing: -0.4,
+  },
+
+  hero: {
+    backgroundColor: colors.surfaceInverse,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.surfaceInverse,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "transform 0.15s ease, opacity 0.15s ease" } as any) : {}),
+  },
+  heroBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+  },
+  heroLabel: {
+    color: colors.onSurfaceInverse,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+    letterSpacing: 0.6,
+  },
   heroTitle: {
-    color: colors.onBrandPrimary,
+    color: colors.onSurfaceInverse,
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
+    lineHeight: 26,
+    marginTop: spacing.xs,
   },
   heroCta: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
   },
-  heroCtaText: { color: colors.onBrandPrimary, fontWeight: typography.weight.bold },
-  statsRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.xl },
-  statCard: { flex: 1, alignItems: "flex-start", gap: spacing.xs },
+  heroCtaText: {
+    color: colors.onSurfaceInverse,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.medium,
+    opacity: 0.9,
+  },
+
+  statsRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: "flex-start",
+    gap: spacing.xs,
+    padding: spacing.lg,
+  },
+  statIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.xs,
+  },
   statValue: {
     fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
+    fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.5,
   },
-  statLabel: { color: colors.muted, fontSize: typography.size.sm },
+  statLabel: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.regular,
+  },
+
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -65,33 +123,45 @@ const useStyles = makeStyles((colors) => ({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.onSurface,
+    letterSpacing: -0.3,
   },
+
   subjectCard: {
     marginBottom: spacing.md,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
-    ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : {}),
+    padding: spacing.md,
+    ...(Platform.OS === "web" ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : {}),
   },
   subjectIcon: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
-    backgroundColor: colors.brandTertiary,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  subjectBody: { flex: 1 },
+  subjectBody: {
+    flex: 1,
+    gap: 3,
+  },
   subjectTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
   },
-  subjectMeta: { color: colors.muted, fontSize: typography.size.sm },
+  subjectMeta: {
+    color: colors.muted,
+    fontSize: typography.size.sm,
+  },
 }));
 
 export default function StudentDashboard() {
   const styles = useStyles();
+  const { colors } = useTheme();
   const { user } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<StudentDashboardData | null>(null);
@@ -117,32 +187,42 @@ export default function StudentDashboard() {
   return (
     <ScreenContainer scroll testID="student-dashboard">
       <View style={styles.greeting}>
-        <Text style={styles.hello}>Halo,</Text>
-        <Text style={styles.name}>{firstName} 👋</Text>
+        <Text style={styles.hello}>Selamat datang kembali,</Text>
+        <Text style={styles.name}>{firstName}</Text>
       </View>
 
       <Pressable
         onPress={() => router.push(`/course/${heroCourse}`)}
         testID="continue-learning-card"
+        style={({ pressed }) => [pressed && { opacity: 0.95 }]}
       >
         <View style={styles.hero}>
-          <Text style={styles.heroLabel}>LANJUTKAN BELAJAR</Text>
+          <View style={styles.heroBadgeRow}>
+            <View style={styles.heroBadge}>
+              <Text style={styles.heroLabel}>LANJUTKAN BELAJAR</Text>
+            </View>
+            <Icon name="arrow-forward" size={16} color="rgba(255,255,255,0.7)" />
+          </View>
           <Text style={styles.heroTitle}>{heroTitle}</Text>
           <View style={styles.heroCta}>
-            <Icon name="play-circle" size={20} color="#FFFFFF" />
+            <Icon name="play" size={16} color={colors.onSurfaceInverse} />
             <Text style={styles.heroCtaText}>{heroCta}</Text>
           </View>
         </View>
       </Pressable>
 
       <View style={styles.statsRow}>
-        <Card tone="tertiary" style={styles.statCard}>
-          <Icon name="flame" size={22} color="#FF715B" />
+        <Card style={styles.statCard}>
+          <View style={styles.statIconWrap}>
+            <Icon name="flame" size={20} color="#F59E0B" />
+          </View>
           <Text style={styles.statValue}>{data?.streak_days ?? 0}</Text>
           <Text style={styles.statLabel}>Streak harian</Text>
         </Card>
-        <Card tone="tertiary" style={styles.statCard}>
-          <Icon name="trophy" size={22} color="#FF715B" />
+        <Card style={styles.statCard}>
+          <View style={styles.statIconWrap}>
+            <Icon name="trophy" size={20} color="#2563EB" />
+          </View>
           <Text style={styles.statValue}>{data?.badges_earned ?? 0}</Text>
           <Text style={styles.statLabel}>Badge diraih</Text>
         </Card>
@@ -150,7 +230,7 @@ export default function StudentDashboard() {
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Mata Pelajaran</Text>
-        <Badge label="Baru" tone="brand" />
+        <Badge label="Katalog" tone="neutral" />
       </View>
 
       {(data?.subjects ?? []).map((s) => (
@@ -158,10 +238,11 @@ export default function StudentDashboard() {
           key={s.id}
           onPress={() => router.push(`/course/${s.id}`)}
           testID={`subject-card-${s.id}`}
+          style={({ pressed }) => [pressed && { opacity: 0.85 }]}
         >
-          <Card style={styles.subjectCard} elevated>
+          <Card style={styles.subjectCard}>
             <View style={styles.subjectIcon}>
-              <Icon name="library" size={22} color="#D94A38" />
+              <Icon name="book-outline" size={20} color={colors.onSurface} />
             </View>
             <View style={styles.subjectBody}>
               <Text style={styles.subjectTitle}>{s.title}</Text>
@@ -169,7 +250,7 @@ export default function StudentDashboard() {
                 {s.pre_test_completed ? `Progres: ${s.progress}%` : "Pre-Test belum dikerjakan"}
               </Text>
             </View>
-            <Icon name="chevron-forward" size={20} color="#8A8A8E" />
+            <Icon name="chevron-forward" size={18} color={colors.muted} />
           </Card>
         </Pressable>
       ))}

@@ -11,33 +11,40 @@ interface Props {
 
 const useStyles = makeStyles((colors) => ({
   hero: {
-    backgroundColor: colors.brandSecondary,
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.xl,
     alignItems: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
     marginBottom: spacing.lg,
   },
   heroIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceSecondary,
+    width: 56,
+    height: 56,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.sm,
   },
   heroTitle: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.display,
-    color: colors.onBrandSecondary,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
     textAlign: "center",
+    letterSpacing: -0.3,
   },
   heroSub: {
-    color: colors.onBrandSecondary,
-    opacity: 0.8,
+    color: colors.muted,
     fontSize: typography.size.base,
     textAlign: "center",
+    lineHeight: 22,
+    maxWidth: 420,
+    marginTop: spacing.xs,
   },
   ruleRow: {
     flexDirection: "row",
@@ -45,10 +52,18 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.md,
     paddingVertical: spacing.sm,
   },
-  ruleText: { flex: 1, color: colors.onSurface, fontSize: typography.size.base },
+  ruleIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceTertiary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ruleText: { flex: 1, color: colors.onSurface, fontSize: typography.size.sm, lineHeight: 20 },
   rulesTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: colors.onSurface,
     marginBottom: spacing.sm,
   },
@@ -56,33 +71,35 @@ const useStyles = makeStyles((colors) => ({
 }));
 
 const RULES: Array<{ icon: IoniconName; text: (n: number) => string }> = [
-  { icon: "list", text: (n) => `${n} soal pilihan ganda` },
-  { icon: "time", text: () => "Tanpa batas waktu, kerjakan dengan tenang" },
-  { icon: "repeat", text: () => "Hanya bisa dikerjakan satu kali sebagai tolok ukur awal" },
-  { icon: "lock-open", text: () => "Setelah selesai, seluruh modul kelas akan terbuka" },
+  { icon: "list-outline", text: (n) => `${n} soal pilihan ganda` },
+  { icon: "time-outline", text: () => "Tanpa batas waktu, kerjakan dengan tenang" },
+  { icon: "repeat-outline", text: () => "Hanya bisa dikerjakan satu kali sebagai tolok ukur awal" },
+  { icon: "lock-open-outline", text: () => "Setelah selesai, seluruh modul kelas akan terbuka" },
 ];
 
 export function PreTestIntro({ courseTitle, totalQuestions, onStart }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
+
   return (
     <View testID="pretest-intro">
       <View style={styles.hero}>
         <View style={styles.heroIcon}>
-          <Icon name="clipboard" size={32} color={colors.brandPrimary} />
+          <Icon name="clipboard-outline" size={26} color={colors.onSurface} />
         </View>
         <Text style={styles.heroTitle}>Pre-Test {courseTitle}</Text>
         <Text style={styles.heroSub}>
-          Ukur pengetahuan awalmu sebelum mulai belajar. Tidak ada jawaban salah yang menghukum —
-          ini hanya titik awal.
+          Ukur pemahaman awal sebelum memulai kelas. Hasil pre-test tidak memengaruhi nilai akhirmu.
         </Text>
       </View>
 
       <Card>
-        <Text style={styles.rulesTitle}>Yang perlu kamu tahu</Text>
+        <Text style={styles.rulesTitle}>Petunjuk Pengerjaan</Text>
         {RULES.map((r) => (
           <View key={r.icon} style={styles.ruleRow}>
-            <Icon name={r.icon} size={20} color={colors.onBrandTertiary} />
+            <View style={styles.ruleIconWrap}>
+              <Icon name={r.icon} size={16} color={colors.muted} />
+            </View>
             <Text style={styles.ruleText}>{r.text(totalQuestions)}</Text>
           </View>
         ))}
@@ -94,7 +111,7 @@ export function PreTestIntro({ courseTitle, totalQuestions, onStart }: Props) {
         style={styles.cta}
         onPress={onStart}
         testID="pretest-start"
-        leftIcon={<Icon name="play" size={18} color={colors.onBrandPrimary} />}
+        leftIcon={<Icon name="play" size={16} color={colors.onBrandPrimary} />}
       />
     </View>
   );

@@ -17,14 +17,16 @@ function initials(name: string): string {
 
 const useStyles = makeStyles((colors) => ({
   base: {
-    backgroundColor: colors.brandSecondary,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
   },
   initials: {
-    color: colors.onBrandSecondary,
-    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+    fontWeight: typography.weight.semibold,
   },
 }));
 
@@ -40,7 +42,7 @@ export function Avatar({ name, uri, size = 48 }: AvatarProps) {
   }
   return (
     <View style={[styles.base, dim]}>
-      <Text style={[styles.initials, { fontSize: size * 0.4 }]}>
+      <Text style={[styles.initials, { fontSize: size * 0.38 }]}>
         {initials(name)}
       </Text>
     </View>

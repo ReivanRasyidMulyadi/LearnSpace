@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -21,24 +22,32 @@ const useStyles = makeStyles((colors) => ({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
     color: colors.onSurfaceTertiary,
-    marginLeft: spacing.md,
+    marginLeft: 2,
   },
   input: {
-    minHeight: 52,
-    backgroundColor: colors.surfaceTertiary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.xl,
-    fontSize: typography.size.lg,
+    minHeight: 46,
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.size.base,
     color: colors.onSurface,
-    borderWidth: 1.5,
-    borderColor: "transparent",
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}),
   },
-  focused: { borderColor: colors.brandPrimary, backgroundColor: colors.surfaceSecondary },
-  errorBorder: { borderColor: colors.error },
+  focused: {
+    borderColor: colors.brandPrimary,
+    backgroundColor: colors.surfaceSecondary,
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #0F172A" } as any) : {}),
+  },
+  errorBorder: {
+    borderColor: colors.error,
+    ...(Platform.OS === "web" ? ({ boxShadow: "0 0 0 1px #EF4444" } as any) : {}),
+  },
   errorText: {
     fontSize: typography.size.sm,
     color: colors.error,
-    marginLeft: spacing.md,
+    marginLeft: 2,
   },
 }));
 
@@ -55,6 +64,7 @@ export function Input({
   const [focused, setFocused] = useState(false);
   const styles = useStyles();
   const { colors } = useTheme();
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label ? (

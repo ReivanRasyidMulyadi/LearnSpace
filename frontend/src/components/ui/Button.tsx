@@ -15,6 +15,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
 export interface ButtonProps extends Omit<PressableProps, "children"> {
   label: string;
   variant?: ButtonVariant;
+  pill?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
   leftIcon?: React.ReactNode;
@@ -24,36 +25,52 @@ export interface ButtonProps extends Omit<PressableProps, "children"> {
 
 const useStyles = makeStyles((colors) => ({
   base: {
-    minHeight: 52,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.pill,
+    minHeight: 46,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
-  primary: { backgroundColor: colors.brandPrimary, ...shadows.button },
-  secondary: { backgroundColor: colors.brandSecondary, ...shadows.button },
-  ghost: { backgroundColor: "transparent" },
+  pill: {
+    borderRadius: radius.pill,
+  },
+  primary: {
+    backgroundColor: colors.brandPrimary,
+    borderColor: colors.brandPrimary,
+    ...shadows.button,
+  },
+  secondary: {
+    backgroundColor: colors.surfaceTertiary,
+    borderColor: colors.border,
+  },
+  ghost: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+  },
   outline: {
     backgroundColor: colors.surfaceSecondary,
-    borderWidth: 1.5,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
+    ...shadows.button,
   },
   labelBase: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.medium,
   },
   labelOnPrimary: { color: colors.onBrandPrimary },
-  labelOnSecondary: { color: colors.onBrandSecondary },
-  labelOnGhost: { color: colors.brandPrimary },
+  labelOnSecondary: { color: colors.onSurface },
+  labelOnGhost: { color: colors.onSurface },
   labelOnOutline: { color: colors.onSurface },
-  disabled: { opacity: 0.5 },
+  disabled: { opacity: 0.45 },
 }));
 
 export function Button({
   label,
   variant = "primary",
+  pill = false,
   loading,
   fullWidth,
   leftIcon,
@@ -68,13 +85,14 @@ export function Button({
 
   const containerStyle: ViewStyle[] = [
     styles.base,
+    pill && styles.pill,
     variant === "primary" && styles.primary,
     variant === "secondary" && styles.secondary,
     variant === "ghost" && styles.ghost,
     variant === "outline" && styles.outline,
     fullWidth && { alignSelf: "stretch" },
     (disabled || loading) && styles.disabled,
-    Platform.OS === "web" && !disabled && !loading ? ({ cursor: "pointer" } as any) : null,
+    Platform.OS === "web" && !disabled && !loading ? ({ cursor: "pointer", transition: "all 0.15s ease" } as any) : null,
     ...(Array.isArray(style) ? style : style ? [style] : []),
   ].filter(Boolean) as ViewStyle[];
 
@@ -82,7 +100,7 @@ export function Button({
     variant === "primary"
       ? colors.onBrandPrimary
       : variant === "secondary"
-      ? colors.onBrandSecondary
+      ? colors.onSurface
       : variant === "ghost"
       ? colors.brandPrimary
       : colors.onSurface;
@@ -94,12 +112,12 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         ...containerStyle,
-        pressed && !disabled && !loading ? { opacity: 0.85 } : null,
+        pressed && !disabled && !loading ? { opacity: 0.85, transform: [{ scale: 0.99 }] } : null,
       ]}
       testID={testID}
     >
       {loading ? (
-        <ActivityIndicator color={labelColor} />
+        <ActivityIndicator color={labelColor} size="small" />
       ) : (
         <>
           {leftIcon ? <View>{leftIcon}</View> : null}

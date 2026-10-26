@@ -1,5 +1,6 @@
-// Design tokens from /app/design_guidelines.json — Tactile/Playful personality.
-// NEVER write color literals in components. Use colors.* or useTheme().colors.
+// Design tokens — Clean Minimalist (Apple / Notion) personality.
+// Crisp typography, refined monochrome with subtle accents, ultra-soft shadows, razor-sharp borders.
+// NEVER write hardcoded color literals in components. Use colors.* or useTheme().colors.
 
 import { useMemo } from "react";
 import { Appearance, Platform, StyleSheet, useColorScheme } from "react-native";
@@ -7,41 +8,41 @@ import { Appearance, Platform, StyleSheet, useColorScheme } from "react-native";
 export type ColorScheme = "light" | "dark";
 
 const light = {
-  // Surfaces
-  surface: "#FDFCF9",
-  onSurface: "#1C1C1F",
-  surfaceSecondary: "#FFFFFF",
-  onSurfaceSecondary: "#1C1C1F",
-  surfaceTertiary: "#F2F1EC",
-  onSurfaceTertiary: "#4A4A4D",
-  surfaceInverse: "#1C1C1F",
-  onSurfaceInverse: "#FDFCF9",
-  muted: "#8A8A8E",
+  // Surfaces - Clean Minimalist (Apple / Notion)
+  surface: "#F8FAFC", // Crisp off-white canvas
+  onSurface: "#0F172A", // Deep slate text
+  surfaceSecondary: "#FFFFFF", // Pure white cards & modals
+  onSurfaceSecondary: "#0F172A",
+  surfaceTertiary: "#F1F5F9", // Slate-100 for subtle fills / inputs
+  onSurfaceTertiary: "#475569", // Slate-600 for secondary text
+  surfaceInverse: "#0F172A", // Slate-900 for dark contrasting elements
+  onSurfaceInverse: "#FFFFFF",
+  muted: "#64748B", // Slate-500 for captions & metadata
 
-  // Brand
-  brand: "#FF715B",
+  // Brand - Apple / Notion deep slate primary with electric knowledge blue accent
+  brand: "#0F172A",
   onBrand: "#FFFFFF",
-  brandPrimary: "#FF715B",
+  brandPrimary: "#0F172A",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#FFD166",
-  onBrandSecondary: "#1C1C1F",
-  brandTertiary: "#FDE6E2",
-  onBrandTertiary: "#D94A38",
+  brandSecondary: "#2563EB", // Electric knowledge blue accent
+  onBrandSecondary: "#FFFFFF",
+  brandTertiary: "#EFF6FF", // Soft blue wash
+  onBrandTertiary: "#1D4ED8", // Refined blue text
 
   // Status
-  success: "#34C759",
+  success: "#10B981", // Emerald green
   onSuccess: "#FFFFFF",
-  warning: "#FFD166",
-  onWarning: "#1C1C1F",
-  error: "#FF3B30",
+  warning: "#F59E0B", // Amber
+  onWarning: "#FFFFFF",
+  error: "#EF4444", // Crimson red
   onError: "#FFFFFF",
-  info: "#E5E5EA",
-  onInfo: "#1C1C1F",
+  info: "#F1F5F9",
+  onInfo: "#0F172A",
 
   // Lines
-  border: "#EBEBE6",
-  borderStrong: "#D6D6D1",
-  divider: "#F2F2ED",
+  border: "#E2E8F0", // Clean 1px hairline border
+  borderStrong: "#CBD5E1",
+  divider: "#F1F5F9",
 };
 
 export type ThemeColors = typeof light;
@@ -60,51 +61,74 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 16,
-  lg: 24,
+  sm: 6,
+  md: 10,
+  lg: 14,
   pill: 999,
 } as const;
 
 export const typography = {
-  displayFamily: undefined as string | undefined, // system; swap for "Fredoka" when font is loaded
-  textFamily: undefined as string | undefined, // system; swap for "Nunito"
+  displayFamily: Platform.select({
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    default: undefined,
+  }),
+  textFamily: Platform.select({
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    default: undefined,
+  }),
   size: {
-    sm: 12,
-    base: 14,
-    lg: 16,
+    xs: 11,
+    sm: 13,
+    base: 15,
+    lg: 17,
     xl: 20,
     xxl: 24,
-    display: 32,
+    display: 30,
   },
   weight: {
     regular: "400" as const,
-    medium: "600" as const,
-    bold: "700" as const,
-    display: "800" as const,
+    medium: "500" as const,
+    semibold: "600" as const,
+    bold: "600" as const,
+    display: "700" as const,
   },
 } as const;
 
 export const shadows = {
-  // Tier 2 — chunky tactile cards
   card: Platform.select({
-    web: { boxShadow: "0 4px 12px rgba(28, 28, 31, 0.08)" },
+    web: {
+      boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+    },
     default: {
-      shadowColor: "#1C1C1F",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      elevation: 4,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 3,
+      elevation: 1,
+    },
+  })!,
+  cardElevated: Platform.select({
+    web: {
+      boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.04)",
+    },
+    default: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 2,
     },
   })!,
   button: Platform.select({
-    web: { boxShadow: "0 2px 6px rgba(28, 28, 31, 0.10)" },
+    web: {
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    },
     default: {
-      shadowColor: "#1C1C1F",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
-      elevation: 3,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
   })!,
 } as const;
