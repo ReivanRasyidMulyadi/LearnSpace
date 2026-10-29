@@ -103,6 +103,10 @@ def _apply_filter(query: Any, filter_dict: Dict[str, Any], table_name: Optional[
                 query = query.lt(k, _serialize_val(v["$lt"]))
             elif "$ne" in v:
                 query = query.neq(k, _serialize_val(v["$ne"]))
+            elif "$regex" in v:
+                raw_pattern = v["$regex"]
+                clean = raw_pattern.replace("\\", "").lstrip("^").rstrip("$")
+                query = query.ilike(k, f"%{clean}%")
         else:
             query = query.eq(k, _serialize_val(v))
     return query

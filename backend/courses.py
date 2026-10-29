@@ -19,36 +19,6 @@ from seed_data import MODULES
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
-POST_TEST_QUESTIONS: dict[str, list[dict]] = {
-    "math": [
-        {"id": "math_post_1", "text": "Berapakah hasil dari 25% dari 240?", "options": ["50", "60", "70", "80"], "correct_index": 1},
-        {"id": "math_post_2", "text": "Jika sebuah segitiga memiliki alas 12 cm dan tinggi 8 cm, maka luasnya adalah ...", "options": ["48 cm²", "96 cm²", "36 cm²", "24 cm²"], "correct_index": 0},
-        {"id": "math_post_3", "text": "Faktor persekutuan terbesar (FPB) dari 24 dan 36 adalah ...", "options": ["6", "8", "12", "18"], "correct_index": 2},
-        {"id": "math_post_4", "text": "Hasil dari (-8) + 15 - 4 adalah ...", "options": ["1", "3", "-3", "7"], "correct_index": 1},
-        {"id": "math_post_5", "text": "Sebuah mobil menempuh 180 km dalam waktu 3 jam. Berapakah kecepatan rata-ratanya?", "options": ["50 km/jam", "60 km/jam", "70 km/jam", "80 km/jam"], "correct_index": 1},
-    ],
-    "science": [
-        {"id": "sci_post_1", "text": "Zat yang berfungsi mengikat dan membawa oksigen dalam sel darah merah adalah ...", "options": ["Leukosit", "Trombosit", "Hemoglobin", "Plasma"], "correct_index": 2},
-        {"id": "sci_post_2", "text": "Perubahan wujud benda dari padat langsung menjadi gas dinamakan ...", "options": ["Mencair", "Mengembun", "Menyublim", "Menguap"], "correct_index": 2},
-        {"id": "sci_post_3", "text": "Unit terkecil dari makhluk hidup penyusun tubuh disebut ...", "options": ["Jaringan", "Organ", "Sel", "Sistem organ"], "correct_index": 2},
-        {"id": "sci_post_4", "text": "Energi yang dihasilkan dari aliran muatan elektron disebut ...", "options": ["Energi kinetik", "Energi listrik", "Energi kimia", "Energi potensial"], "correct_index": 1},
-        {"id": "sci_post_5", "text": "Lapisan atmosfer tempat terjadinya fenomena cuaca (hujan, angin, awan) adalah ...", "options": ["Troposfer", "Stratosfer", "Mesosfer", "Termosfer"], "correct_index": 0},
-    ],
-    "english": [
-        {"id": "eng_post_1", "text": "They ___ basketball in the court every Saturday afternoon.", "options": ["play", "plays", "playing", "played"], "correct_index": 0},
-        {"id": "eng_post_2", "text": "The comparative form of the adjective 'good' is ...", "options": ["gooder", "best", "better", "more good"], "correct_index": 2},
-        {"id": "eng_post_3", "text": "What is the closest synonym of the word 'difficult'?", "options": ["Easy", "Hard", "Simple", "Quick"], "correct_index": 1},
-        {"id": "eng_post_4", "text": "'Where do you live?' — This question is inquiring about ...", "options": ["Time", "Place", "Age", "Name"], "correct_index": 1},
-        {"id": "eng_post_5", "text": "She has lived here ___ five years.", "options": ["since", "for", "during", "at"], "correct_index": 1},
-    ],
-    "history": [
-        {"id": "hist_post_1", "text": "Konferensi Meja Bundar (KMB) tahun 1949 diselenggarakan di kota ...", "options": ["Jakarta", "Den Haag", "Yogyakarta", "Bandung"], "correct_index": 1},
-        {"id": "hist_post_2", "text": "Surat kabar tertua pembawa semangat nasionalisme yang dipimpin Tirto Adhi Soerjo adalah ...", "options": ["De Express", "Medan Prijaji", "Fajar Asia", "Indonesia Merdeka"], "correct_index": 1},
-        {"id": "hist_post_3", "text": "Candi Borobudur di Jawa Tengah merupakan mahakarya peninggalan Dinasti ...", "options": ["Syailendra", "Sanjaya", "Isyana", "Kertanegara"], "correct_index": 0},
-        {"id": "hist_post_4", "text": "Sumpah Palapa untuk mempersatukan Nusantara diucapkan oleh Mahapatih ...", "options": ["Hayam Wuruk", "Gajah Mada", "Raden Wijaya", "Kertanegara"], "correct_index": 1},
-        {"id": "hist_post_5", "text": "Tujuan utama pemuda membawa Soekarno-Hatta ke Rengasdengklok adalah ...", "options": ["Menjauhkan dari pengaruh Jepang", "Menyusun strategi perang", "Menyerah kepada Sekutu", "Membentuk kabinet baru"], "correct_index": 0},
-    ],
-}
 
 
 async def get_course(course_id: str) -> Optional[dict]:
@@ -138,20 +108,73 @@ async def complete_module(
     return await build_course_progress(user.user_id, course_id)
 
 
+@router.get("/{course_id}/materials")
+async def get_course_materials(
+    course_id: str, user: UserPublic = Depends(require_role("STUDENT"))
+):
+    course = await get_course(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="course_not_found")
+    items = await db.materials.find(
+        {"course_id": course_id}, {"_id": 0}
+    ).sort("order", 1).to_list(length=50)
+    return {"course_id": course_id, "materials": items}
+
+
+@router.get("/{course_id}/videos")
+async def get_course_videos(
+    course_id: str, user: UserPublic = Depends(require_role("STUDENT"))
+):
+    course = await get_course(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="course_not_found")
+    items = await db.videos.find(
+        {"course_id": course_id}, {"_id": 0}
+    ).sort("order", 1).to_list(length=50)
+    return {"course_id": course_id, "videos": items}
+
+
+@router.get("/{course_id}/manual-book")
+async def get_course_manual_book(
+    course_id: str, user: UserPublic = Depends(require_role("STUDENT"))
+):
+    course = await get_course(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="course_not_found")
+    book = await db.manual_books.find_one({"course_id": course_id}, {"_id": 0})
+    return {"course_id": course_id, "manual_book": book}
+
+
 class PostTestSubmission(BaseModel):
     answers: dict[str, int]
 
 
 @router.get("/{course_id}/post-test")
-async def get_post_test(course_id: str, user: UserPublic = Depends(require_role("STUDENT"))):
+async def get_post_test(
+    course_id: str, user: UserPublic = Depends(require_role("STUDENT"))
+):
     course = await get_course(course_id)
     if not course:
         raise HTTPException(status_code=404, detail="course_not_found")
-    questions = POST_TEST_QUESTIONS.get(course_id, POST_TEST_QUESTIONS["math"])
-    public_q = [
-        {"question_id": q["id"], "text": q["text"], "options": q["options"]}
-        for q in questions
-    ]
+
+    questions = await db.questions.find(
+        {"course_id": course_id, "test_type": "post_test"},
+        {"_id": 0, "created_at": 0, "updated_at": 0},
+    ).sort("order", 1).to_list(length=100)
+
+    public_q = []
+    for q in questions:
+        answers = await db.answers.find(
+            {"question_id": q["question_id"]}, {"_id": 0}
+        ).sort("order", 1).to_list(length=50)
+        public_q.append(
+            {
+                "question_id": q["question_id"],
+                "text": q["text"],
+                "options": [a["text"] for a in answers],
+            }
+        )
+
     return {
         "course_id": course_id,
         "course_title": course["title"],
@@ -168,29 +191,48 @@ async def submit_post_test(
     course = await get_course(course_id)
     if not course:
         raise HTTPException(status_code=404, detail="course_not_found")
-    
-    questions = POST_TEST_QUESTIONS.get(course_id, POST_TEST_QUESTIONS["math"])
+
+    questions = await db.questions.find(
+        {"course_id": course_id, "test_type": "post_test"},
+        {"_id": 0, "created_at": 0, "updated_at": 0},
+    ).sort("order", 1).to_list(length=100)
+
+    if not questions:
+        raise HTTPException(status_code=404, detail="no_questions_found")
+
     score = 0
     review = []
     for q in questions:
-        user_ans = payload.answers.get(q["id"])
-        is_corr = user_ans == q["correct_index"]
+        qid = q["question_id"]
+        answers = await db.answers.find(
+            {"question_id": qid}, {"_id": 0}
+        ).sort("order", 1).to_list(length=50)
+
+        options = [a["text"] for a in answers]
+        correct_idx = next(
+            (i for i, a in enumerate(answers) if a.get("is_correct")), 0
+        )
+        user_ans = payload.answers.get(qid)
+        is_corr = user_ans == correct_idx
         if is_corr:
             score += 1
-        review.append({
-            "question_id": q["id"],
-            "text": q["text"],
-            "options": q["options"],
-            "selected_index": user_ans,
-            "correct_index": q["correct_index"],
-            "is_correct": is_corr,
-        })
-    
+
+        review.append(
+            {
+                "question_id": qid,
+                "text": q["text"],
+                "options": options,
+                "selected_index": user_ans,
+                "correct_index": correct_idx,
+                "is_correct": is_corr,
+            }
+        )
+
     total = len(questions)
     pct = round((score / total) * 100)
     now = datetime.now(timezone.utc)
     res_id = f"res_{uuid.uuid4().hex[:12]}"
-    
+
     result_doc = {
         "result_id": res_id,
         "user_id": user.user_id,
@@ -216,7 +258,7 @@ async def submit_post_test(
         },
         upsert=True,
     )
-    
+
     return {
         "result_id": res_id,
         "course_id": course_id,

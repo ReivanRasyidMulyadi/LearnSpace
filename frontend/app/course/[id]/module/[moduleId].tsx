@@ -47,195 +47,33 @@ interface ResultsData {
   issued_at: string;
 }
 
-const MODULE_DATA: Record<
-  string,
-  Record<
-    string,
-    {
-      title: string;
-      subtitle: string;
-      readingTime?: string;
-      sections?: Array<{ heading: string; body: string; highlight?: string }>;
-      videoUrl?: string;
-      duration?: string;
-      chapters?: Array<{ time: string; title: string }>;
-      pdfTitle?: string;
-      totalPages?: number;
-      pdfSummary?: string;
-    }
-  >
-> = {
-  materials: {
-    math: {
-      title: "Materi Inti Matematika",
-      subtitle: "Aljabar, Geometri Bidang, dan Aritmatika Cepat",
-      readingTime: "5 menit membaca",
-      sections: [
-        {
-          heading: "1. Pemahaman Operasi Aritmatika & Aljabar",
-          body: "Aljabar membantu kita menyelesaikan masalah dengan variabel yang belum diketahui nilainya. Ingat aturan urutan operasi matematika (PEMDAS/KABATAKU): Kurung, Pangkat, Perkalian/Pembagian, lalu Penjumlahan/Pengurangan.",
-          highlight: "Contoh: 2x + 6 = 14 ➔ 2x = 8 ➔ x = 4.",
-        },
-        {
-          heading: "2. Menghitung Persentase Cepat",
-          body: "Untuk mencari 25% dari sebuah bilangan, bagilah bilangan tersebut dengan 4. Untuk 10%, geser koma desimal satu langkah ke kiri. Rumus dasar: (Persen / 100) x Nilai Total.",
-          highlight: "Tips Ujian: 25% dari 240 = 240 / 4 = 60.",
-        },
-        {
-          heading: "3. Rumus Luas & Keliling Bangun Datar",
-          body: "Luas Segitiga = 1/2 x alas x tinggi. Luas Persegi Panjang = panjang x lebar. Keliling Persegi = 4 x sisi.",
-          highlight: "Segitiga dengan alas 12 cm dan tinggi 8 cm ➔ Luas = 1/2 x 12 x 8 = 48 cm².",
-        },
-      ],
-    },
-    science: {
-      title: "Materi Inti IPA",
-      subtitle: "Sistem Kehidupan, Energi, dan Dinamika Alam",
-      readingTime: "6 menit membaca",
-      sections: [
-        {
-          heading: "1. Sel sebagai Unit Terkecil Kehidupan",
-          body: "Semua makhluk hidup tersusun atas sel. Sel tumbuhan memiliki dinding sel dan kloroplas yang tidak dimiliki sel hewan, sehingga tumbuhan dapat melakukan fotosintesis menghasilkan glukosa dan oksigen.",
-          highlight: "Rumus Fotosintesis: 6CO₂ + 6H₂O + Cahaya ➔ C₆H₁₂O₆ + 6O₂.",
-        },
-        {
-          heading: "2. Peredaran Darah & Hemoglobin",
-          body: "Darah manusia terdiri atas plasma darah dan sel-sel darah. Hemoglobin dalam eritrosit (sel darah merah) bertugas mengikat oksigen dari paru-paru dan mengedarkannya ke seluruh jaringan tubuh.",
-          highlight: "Jantung berfungsi sebagai pompa utama dengan 4 ruang (2 serambi, 2 bilik).",
-        },
-        {
-          heading: "3. Perubahan Wujud Zat & Lapisan Atmosfer",
-          body: "Perubahan wujud dari padat langsung menjadi gas dinamakan menyublim (contoh: kapur barus). Lapisan atmosfer terdekat tempat terjadinya cuaca adalah Troposfer (0-12 km).",
-          highlight: "Urutan atmosfer: Troposfer ➔ Stratosfer ➔ Mesosfer ➔ Termosfer ➔ Eksosfer.",
-        },
-      ],
-    },
-    english: {
-      title: "Core English Materials",
-      subtitle: "Grammar Mastery, Vocabulary & Reading Comprehension",
-      readingTime: "5 menit membaca",
-      sections: [
-        {
-          heading: "1. Simple Present vs Simple Past Tense",
-          body: "Simple Present tense describes habits, general truths, and repeated actions (e.g., 'They play basketball every Saturday'). Simple Past tense refers to completed events in the past using verb-2 (e.g., 'Yesterday, I watched a movie').",
-          highlight: "Pattern: Subject + V1(s/es) for Present | Subject + V2 for Past.",
-        },
-        {
-          heading: "2. Degrees of Comparison",
-          body: "When comparing two objects or people, we use the comparative degree. Regular one-syllable adjectives add '-er' (fast ➔ faster). Irregular adjectives change completely: good ➔ better (not gooder!), bad ➔ worse.",
-          highlight: "Example: 'This math exercise is better than yesterday's.'",
-        },
-        {
-          heading: "3. Prepositions of Time: Since vs For",
-          body: "Use 'since' for a specific starting point in time (since Monday, since 2020). Use 'for' to describe a total duration of time (for five years, for two hours).",
-          highlight: "Example: 'She has studied here for five years.'",
-        },
-      ],
-    },
-    history: {
-      title: "Materi Inti Sejarah",
-      subtitle: "Peradaban Nusantara & Tonggak Kemerdekaan 1945",
-      readingTime: "6 menit membaca",
-      sections: [
-        {
-          heading: "1. Kerajaan Hindu-Buddha & Peninggalannya",
-          body: "Kerajaan Hindu tertua di Nusantara adalah Kerajaan Kutai di Kalimantan Timur (abad ke-4 Masehi) dengan prasasti Yupa. Candi Borobudur dibangun pada abad ke-8-9 Masehi oleh wangsa Syailendra yang bercorak Buddha Mahayana.",
-          highlight: "Mahapatih Gajah Mada mengikrarkan Sumpah Palapa pada masa kejayaan Kerajaan Majapahit.",
-        },
-        {
-          heading: "2. Kebangkitan Nasional & Pers Pergerakan",
-          body: "Budi Utomo didirikan pada 20 Mei 1908 sebagai organisasi modern pertama. Pers pribumi seperti Medan Prijaji yang dipimpin Tirto Adhi Soerjo menjadi pelopor pembawa gagasan kemerdekaan.",
-          highlight: "28 Oktober 1928: Sumpah Pemuda menegaskan satu tanah air, satu bangsa, dan satu bahasa Indonesia.",
-        },
-        {
-          heading: "3. Detik-detik Menuju Proklamasi 17 Agustus 1945",
-          body: "Peristiwa Rengasdengklok pada 16 Agustus 1945 dilakukan para pemuda untuk mengamankan Ir. Soekarno dan Drs. Moh. Hatta agar segera memproklamasikan kemerdekaan tanpa terpengaruh janji Jepang.",
-          highlight: "Proklamasi dibacakan di Jl. Pegangsaan Timur No. 56, Jakarta pada pukul 10.00 WIB.",
-        },
-      ],
-    },
-  },
-  videos: {
-    math: {
-      title: "Video Pembelajaran Matematika",
-      subtitle: "Trik Cepat Menghitung Aljabar & Geometri",
-      duration: "12 menit 45 detik",
-      chapters: [
-        { time: "00:00", title: "Pengenalan & Review Konsep" },
-        { time: "02:30", title: "Pola Aljabar 1 Variabel" },
-        { time: "06:15", title: "Menghitung Luas Bangun Datar" },
-        { time: "09:40", title: "Strategi Soal Ujian" },
-      ],
-    },
-    science: {
-      title: "Video Pembelajaran IPA",
-      subtitle: "Visualisasi Mikroskopis Sel & Sirkulasi Darah",
-      duration: "14 menit 20 detik",
-      chapters: [
-        { time: "00:00", title: "Pengantar Biologi Sel" },
-        { time: "03:10", title: "Struktur & Fungsi Organel Sel" },
-        { time: "07:45", title: "Sirkulasi Darah & Hemoglobin" },
-        { time: "11:30", title: "Latihan Soal IPA Terapan" },
-      ],
-    },
-    english: {
-      title: "English Video Masterclass",
-      subtitle: "Grammar Hacks & Native Listening Practice",
-      duration: "11 menit 50 detik",
-      chapters: [
-        { time: "00:00", title: "Warm Up & Listening Check" },
-        { time: "02:40", title: "Mastering Tenses in 5 Minutes" },
-        { time: "06:20", title: "Irregular Comparatives" },
-        { time: "09:15", title: "Common Speaking Mistakes" },
-      ],
-    },
-    history: {
-      title: "Dokumenter Sejarah Indonesia",
-      subtitle: "Napak Tilas Pergerakan Nasional Menuju Kemerdekaan",
-      duration: "15 menit 10 detik",
-      chapters: [
-        { time: "00:00", title: "Kejayaan Kerajaan Nusantara" },
-        { time: "04:00", title: "Lahirnya Sumpah Pemuda 1928" },
-        { time: "08:30", title: "Peristiwa Rengasdengklok" },
-        { time: "12:15", title: "Detik-Detik Pembacaan Proklamasi" },
-      ],
-    },
-  },
-  manual_book: {
-    math: {
-      title: "Manual Book: Panduan Rumus Lengkap",
-      subtitle: "Buku Saku Digital Matematika SMP/SMA",
-      pdfTitle: "LearnSpace_Math_Handbook_v1.pdf",
-      totalPages: 16,
-      pdfSummary:
-        "Buku panduan ini merangkum seluruh teorema matematika dasar, rumus luas keliling bangun datar, metode eliminasi aljabar, dan bank soal latihan mandiri.",
-    },
-    science: {
-      title: "Manual Book: Ensiklopedia Sains Ringkas",
-      subtitle: "Panduan Praktikum & Teori Ilmu Pengetahuan Alam",
-      pdfTitle: "LearnSpace_Science_Guide_v1.pdf",
-      totalPages: 18,
-      pdfSummary:
-        "Panduan laboratorium dan ringkasan konsep fisika, biologi, dan kimia dasar lengkap dengan diagram berwarna sistem peredaran darah dan tabel periodik.",
-    },
-    english: {
-      title: "Manual Book: English Grammar & Expression",
-      subtitle: "Comprehensive Reference Handbook",
-      pdfTitle: "LearnSpace_English_Handbook_v1.pdf",
-      totalPages: 14,
-      pdfSummary:
-        "A practical handbook covering 12 English tenses, regular & irregular verbs list, idiomatic phrases, and daily conversation patterns.",
-    },
-    history: {
-      title: "Manual Book: Kronik Sejarah Nusantara",
-      subtitle: "Peta Garis Waktu & Tokoh Bangsa",
-      pdfTitle: "LearnSpace_History_Chronicle_v1.pdf",
-      totalPages: 20,
-      pdfSummary:
-        "Buku saku sejarah berformat infografis garis waktu lengkap sejak zaman kerajaan Hindu-Buddha, masa kolonial, pergerakan nasional, hingga kemerdekaan RI.",
-    },
-  },
-};
+interface MaterialItem {
+  material_id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  content: string;
+  order: number;
+}
+
+interface VideoItem {
+  video_id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  url: string;
+  duration_seconds: number;
+  order: number;
+}
+
+interface ManualBookItem {
+  book_id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  file_url: string;
+  pages: number;
+}
 
 const useStyles = makeStyles((colors) => ({
   header: {
@@ -549,18 +387,42 @@ export default function CourseModuleScreen() {
   // Results state
   const [resultsData, setResultsData] = useState<ResultsData | null>(null);
 
-  const modCourseData = MODULE_DATA[modKey]?.[courseId] ?? MODULE_DATA[modKey]?.["math"];
+  // Real database states
+  const [materials, setMaterials] = useState<MaterialItem[]>([]);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [manualBook, setManualBook] = useState<ManualBookItem | null>(null);
+  const [fetching, setFetching] = useState(true);
 
-  // Load module data
+  // Load database module data
   useEffect(() => {
-    if (modKey === "post_test") {
+    setFetching(true);
+    if (modKey === "materials") {
+      apiFetch<{ materials: MaterialItem[] }>(`/courses/${courseId}/materials`)
+        .then((res) => setMaterials(res.materials ?? []))
+        .catch(() => setMaterials([]))
+        .finally(() => setFetching(false));
+    } else if (modKey === "videos") {
+      apiFetch<{ videos: VideoItem[] }>(`/courses/${courseId}/videos`)
+        .then((res) => setVideos(res.videos ?? []))
+        .catch(() => setVideos([]))
+        .finally(() => setFetching(false));
+    } else if (modKey === "manual_book") {
+      apiFetch<{ manual_book: ManualBookItem | null }>(`/courses/${courseId}/manual-book`)
+        .then((res) => setManualBook(res.manual_book))
+        .catch(() => setManualBook(null))
+        .finally(() => setFetching(false));
+    } else if (modKey === "post_test") {
       apiFetch<{ questions: PostTestQ[] }>(`/courses/${courseId}/post-test`)
-        .then((res) => setPostTestQuestions(res.questions))
-        .catch(() => setPostTestQuestions([]));
+        .then((res) => setPostTestQuestions(res.questions ?? []))
+        .catch(() => setPostTestQuestions([]))
+        .finally(() => setFetching(false));
     } else if (modKey === "results") {
       apiFetch<ResultsData>(`/courses/${courseId}/results`)
         .then(setResultsData)
-        .catch(() => setResultsData(null));
+        .catch(() => setResultsData(null))
+        .finally(() => setFetching(false));
+    } else {
+      setFetching(false);
     }
   }, [courseId, modKey]);
 
@@ -625,28 +487,34 @@ export default function CourseModuleScreen() {
         </View>
       </View>
 
-      {/* MATERIALS MODULE */}
-      {modKey === "materials" && modCourseData ? (
+      {/* MATERIALS MODULE (Real Database Records) */}
+      {modKey === "materials" ? (
         <View>
           <View style={styles.heroBanner}>
             <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeText}>{modCourseData.readingTime}</Text>
+              <Text style={styles.heroBadgeText}>Kurikulum Resmi LearnSpace</Text>
             </View>
-            <Text style={styles.heroTitle}>{modCourseData.title}</Text>
-            <Text style={styles.heroSubtitle}>{modCourseData.subtitle}</Text>
+            <Text style={styles.heroTitle}>Materi Pembelajaran</Text>
+            <Text style={styles.heroSubtitle}>
+              Bahan ajar dan pemahaman konsep resmi bersumber langsung dari basis data LearnSpace.
+            </Text>
           </View>
 
-          {(modCourseData.sections ?? []).map((sec, i) => (
-            <Card key={i} style={styles.contentCard}>
-              <Text style={styles.sectionHeading}>{sec.heading}</Text>
-              <Text style={styles.sectionBody}>{sec.body}</Text>
-              {sec.highlight ? (
-                <View style={styles.highlightBox}>
-                  <Text style={styles.highlightText}>{sec.highlight}</Text>
-                </View>
-              ) : null}
+          {materials.length === 0 && !fetching ? (
+            <Card style={styles.contentCard}>
+              <Text style={styles.sectionBody}>Belum ada materi untuk mata pelajaran ini.</Text>
             </Card>
-          ))}
+          ) : (
+            materials.map((mat) => (
+              <Card key={mat.material_id} style={styles.contentCard}>
+                <Text style={styles.sectionHeading}>{mat.title}</Text>
+                <Text style={[styles.sectionHeading, { fontSize: typography.size.xs, color: colors.muted, fontWeight: typography.weight.regular }]}>
+                  {mat.description}
+                </Text>
+                <Text style={styles.sectionBody}>{mat.content}</Text>
+              </Card>
+            ))
+          )}
 
           <View style={styles.actionCard}>
             {successToast ? (
@@ -663,38 +531,38 @@ export default function CourseModuleScreen() {
         </View>
       ) : null}
 
-      {/* VIDEOS MODULE */}
-      {modKey === "videos" && modCourseData ? (
+      {/* VIDEOS MODULE (Real Database Records) */}
+      {modKey === "videos" ? (
         <View>
-          <View style={styles.videoCard}>
-            <Pressable
-              style={styles.playBtn}
-              onPress={() => alert("Video pembelajaran sedang diputar")}
-            >
-              <Icon name="play" size={28} color="#FFFFFF" />
-            </Pressable>
-            <View style={styles.videoMetaRow}>
-              <Text style={styles.videoDuration}>Durasi: {modCourseData.duration}</Text>
-              <View style={styles.videoBadge}>
-                <Text style={styles.videoBadgeText}>HD 1080p</Text>
-              </View>
-            </View>
-          </View>
+          {videos.length === 0 && !fetching ? (
+            <Card style={styles.contentCard}>
+              <Text style={styles.sectionBody}>Belum ada video untuk mata pelajaran ini.</Text>
+            </Card>
+          ) : (
+            videos.map((vid) => (
+              <View key={vid.video_id}>
+                <View style={styles.videoCard}>
+                  <Pressable
+                    style={styles.playBtn}
+                    onPress={() => alert(`Video: ${vid.title}`)}
+                  >
+                    <Icon name="play" size={28} color="#FFFFFF" />
+                  </Pressable>
+                  <View style={styles.videoMetaRow}>
+                    <Text style={styles.videoDuration}>Durasi: {Math.round(vid.duration_seconds / 60)} menit</Text>
+                    <View style={styles.videoBadge}>
+                      <Text style={styles.videoBadgeText}>HD 1080p</Text>
+                    </View>
+                  </View>
+                </View>
 
-          <Card style={styles.contentCard}>
-            <Text style={styles.sectionHeading}>{modCourseData.title}</Text>
-            <Text style={styles.sectionBody}>{modCourseData.subtitle}</Text>
-          </Card>
-
-          <Card style={styles.contentCard}>
-            <Text style={styles.sectionHeading}>Daftar Bab & Timestamp</Text>
-            {(modCourseData.chapters ?? []).map((chap, i) => (
-              <View key={i} style={styles.chapterRow}>
-                <Text style={styles.chapterTime}>{chap.time}</Text>
-                <Text style={styles.chapterTitle}>{chap.title}</Text>
+                <Card style={styles.contentCard}>
+                  <Text style={styles.sectionHeading}>{vid.title}</Text>
+                  <Text style={styles.sectionBody}>{vid.description}</Text>
+                </Card>
               </View>
-            ))}
-          </Card>
+            ))
+          )}
 
           <View style={styles.actionCard}>
             {successToast ? (
@@ -711,25 +579,33 @@ export default function CourseModuleScreen() {
         </View>
       ) : null}
 
-      {/* MANUAL BOOK MODULE */}
-      {modKey === "manual_book" && modCourseData ? (
+      {/* MANUAL BOOK MODULE (Real Database Records) */}
+      {modKey === "manual_book" ? (
         <View>
-          <View style={styles.bookPreview}>
-            <View style={styles.bookIconWrap}>
-              <Icon name="document-text" size={32} color={colors.brandPrimary} />
-            </View>
-            <Text style={styles.bookTitle}>{modCourseData.pdfTitle}</Text>
-            <Text style={styles.bookDesc}>{modCourseData.pdfSummary}</Text>
-            <Badge label={`${modCourseData.totalPages} Halaman • PDF Resmi`} tone="neutral" />
-          </View>
+          {manualBook ? (
+            <View>
+              <View style={styles.bookPreview}>
+                <View style={styles.bookIconWrap}>
+                  <Icon name="document-text" size={32} color={colors.brandPrimary} />
+                </View>
+                <Text style={styles.bookTitle}>{manualBook.title}</Text>
+                <Text style={styles.bookDesc}>{manualBook.description}</Text>
+                <Badge label={`${manualBook.pages} Halaman • PDF Resmi`} tone="neutral" />
+              </View>
 
-          <Button
-            label="Unduh Manual Book (PDF)"
-            variant="outline"
-            onPress={() => alert(`Mengunduh file: ${modCourseData.pdfTitle}`)}
-            leftIcon={<Icon name="download-outline" size={18} color={colors.onSurface} />}
-            style={{ marginBottom: spacing.md }}
-          />
+              <Button
+                label="Unduh Manual Book (PDF)"
+                variant="outline"
+                onPress={() => alert(`Mengunduh buku panduan: ${manualBook.title}`)}
+                leftIcon={<Icon name="download-outline" size={18} color={colors.onSurface} />}
+                style={{ marginBottom: spacing.md }}
+              />
+            </View>
+          ) : !fetching ? (
+            <Card style={styles.contentCard}>
+              <Text style={styles.sectionBody}>Buku panduan belum tersedia untuk mata pelajaran ini.</Text>
+            </Card>
+          ) : null}
 
           <View style={styles.actionCard}>
             {successToast ? (

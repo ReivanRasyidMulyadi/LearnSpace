@@ -80,7 +80,21 @@ def new_user_tokens(session):
     _no_mongo_id(data)
     assert data["user"]["role"] == "STUDENT"
     assert data["user"]["auth_provider"] == "password"
-    return {"email": email, "token": data["session_token"], "user": data["user"]}
+    user_info = {"email": email, "token": data["session_token"], "user": data["user"]}
+    yield user_info
+    try:
+        import asyncio
+        from db import db
+        uid = data["user"]["user_id"]
+        async def _cleanup():
+            await db.users.delete_many({"user_id": uid})
+            await db.profiles.delete_many({"user_id": uid})
+            await db.user_sessions.delete_many({"user_id": uid})
+            await db.test_results.delete_many({"user_id": uid})
+            await db.test_attempts.delete_many({"user_id": uid})
+        asyncio.run(_cleanup())
+    except Exception:
+        pass
 
 
 def test_register_creates_user_and_token(new_user_tokens):

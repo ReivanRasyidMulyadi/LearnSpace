@@ -53,12 +53,27 @@ def fresh_student(session):
     )
     assert r.status_code == 201, r.text
     data = r.json()
-    return {
+    student_info = {
         "email": email,
         "token": data["session_token"],
         "user_id": data["user"]["user_id"],
         "headers": {"Authorization": f"Bearer {data['session_token']}"},
     }
+    yield student_info
+    try:
+        import asyncio
+        from db import db
+        uid = data["user"]["user_id"]
+        async def _cleanup():
+            await db.users.delete_many({"user_id": uid})
+            await db.profiles.delete_many({"user_id": uid})
+            await db.user_sessions.delete_many({"user_id": uid})
+            await db.test_results.delete_many({"user_id": uid})
+            await db.test_attempts.delete_many({"user_id": uid})
+            await db.course_progress.delete_many({"user_id": uid})
+        asyncio.run(_cleanup())
+    except Exception:
+        pass
 
 
 @pytest.fixture(scope="module")
