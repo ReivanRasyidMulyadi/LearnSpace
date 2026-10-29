@@ -11,7 +11,7 @@ import os
 import re
 
 from db import db
-from db_models import gen_id, utcnow
+from db_models import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +35,6 @@ COURSES: dict[str, str] = {
     "pmo": "Pemrograman Mobile",
     "pvi": "Pemrograman Visual",
     "std": "Struktur Data",
-}
-
-# course_id -> (description, order)
-COURSE_META: dict[str, tuple[str, int]] = {
-    "ebp": ("Evaluasi proses dan hasil pembelajaran pada rumpun PTI UNESA.", 1),
-    "imk": ("Desain antarmuka, ergonomi interaksi, dan evaluasi kegunaan sistem.", 2),
-    "pmo": ("Pengembangan aplikasi perangkat bergerak modern berbasis Android dan Flutter.", 3),
-    "pvi": ("Pemrograman aplikasi visual berorientasi objek dan arsitektur event-driven.", 4),
-    "std": ("Struktur data linier dan non-linier, algoritma pencarian, dan pengurutan.", 5),
 }
 
 # Ordered learning flow. Pre-test is the gate for everything after it.
@@ -116,9 +107,8 @@ async def _seed_courses(raw_courses: list[dict]) -> None:
         if not course_id:
             continue
         order = idx + 1
-        description = c.get("description") or COURSE_META.get(course_id, ("", order))[0]
+        description = c.get("description", "")
         title = c["title"]
-        sks = c.get("credits_sks", 2)
 
         await db.courses.update_one(
             {"course_id": course_id},
@@ -138,6 +128,11 @@ async def _seed_courses(raw_courses: list[dict]) -> None:
 
 async def _seed_tests_questions_answers(raw_courses: list[dict]) -> None:
     """Seed pre-test and post-test questions and answers derived from meetings."""
+    expected_questions = len(raw_courses) * 12
+    existing_questions = await db.questions.count_documents({})
+    if existing_questions >= expected_questions:
+        return
+
     now = utcnow()
     for c in raw_courses:
         course_id = SLUG_MAP.get(c["course_id"])

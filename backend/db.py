@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
-import json
 import logging
 import os
 from typing import Any, Dict, List, Optional

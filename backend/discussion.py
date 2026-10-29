@@ -6,8 +6,6 @@ time. Any authenticated user (STUDENT or ADMIN) can participate.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from auth import get_current_user

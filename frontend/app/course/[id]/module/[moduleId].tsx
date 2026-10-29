@@ -151,20 +151,6 @@ const useStyles = makeStyles((colors) => ({
     color: colors.onSurfaceTertiary,
     lineHeight: 22,
   },
-  highlightBox: {
-    backgroundColor: colors.brandTertiary,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.brandPrimary,
-    padding: spacing.md,
-    borderRadius: radius.sm,
-    marginTop: spacing.xs,
-  },
-  highlightText: {
-    color: colors.onBrandTertiary,
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
-    lineHeight: 18,
-  },
 
   // Video mockup styles
   videoCard: {
@@ -210,25 +196,6 @@ const useStyles = makeStyles((colors) => ({
     color: "#FFFFFF",
     fontSize: 10,
     fontWeight: "bold",
-  },
-  chapterRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  chapterTime: {
-    color: colors.brandPrimary,
-    fontWeight: typography.weight.bold,
-    fontSize: typography.size.xs,
-    minWidth: 42,
-  },
-  chapterTitle: {
-    color: colors.onSurface,
-    fontSize: typography.size.sm,
-    flex: 1,
   },
 
   // Manual book styles
