@@ -346,17 +346,46 @@ class SupabaseCollection:
             serialized = _serialize_dict(updates)
 
             def _run():
-                q = supabase.table(self.name).update(serialized)
-                q = _apply_filter(q, filter_dict, self.name)
-                return q.execute()
+                try:
+                    q = supabase.table(self.name).update(serialized)
+                    q = _apply_filter(q, filter_dict, self.name)
+                    return q.execute()
+                except Exception as e:
+                    if "PGRST205" in str(e) or "not find the table" in str(e):
+                        for item in self._fallback_store[self.name].values():
+                            ok = True
+                            for fk, fv in filter_dict.items():
+                                if item.get(fk) != fv:
+                                    ok = False
+                                    break
+                            if ok:
+                                item.update(serialized)
+                        return
+                    raise
 
             await asyncio.to_thread(_run)
 
     async def delete_many(self, filter_dict: Dict[str, Any]) -> None:
         def _run():
-            q = supabase.table(self.name).delete()
-            q = _apply_filter(q, filter_dict, self.name)
-            return q.execute()
+            try:
+                q = supabase.table(self.name).delete()
+                q = _apply_filter(q, filter_dict, self.name)
+                return q.execute()
+            except Exception as e:
+                if "PGRST205" in str(e) or "not find the table" in str(e):
+                    to_del = []
+                    for k, item in self._fallback_store[self.name].items():
+                        ok = True
+                        for fk, fv in filter_dict.items():
+                            if item.get(fk) != fv:
+                                ok = False
+                                break
+                        if ok:
+                            to_del.append(k)
+                    for k in to_del:
+                        self._fallback_store[self.name].pop(k, None)
+                    return
+                raise
 
         await asyncio.to_thread(_run)
 
@@ -365,11 +394,33 @@ class SupabaseCollection:
 
     async def count_documents(self, filter_dict: Optional[Dict[str, Any]] = None) -> int:
         def _run():
-            q = supabase.table(self.name).select("*", count="exact")
-            if filter_dict:
-                q = _apply_filter(q, filter_dict, self.name)
-            res = q.limit(0).execute()
-            return res.count or 0
+            try:
+                q = supabase.table(self.name).select("*", count="exact")
+                if filter_dict:
+                    q = _apply_filter(q, filter_dict, self.name)
+                res = q.limit(0).execute()
+                return res.count or 0
+            except Exception as e:
+                if "PGRST205" in str(e) or "not find the table" in str(e):
+                    items = list(self._fallback_store[self.name].values())
+                    if not filter_dict:
+                        return len(items)
+                    count = 0
+                    for item in items:
+                        ok = True
+                        for fk, fv in filter_dict.items():
+                            item_val = item.get(fk)
+                            if isinstance(item_val, list) and not isinstance(fv, list):
+                                if fv not in item_val:
+                                    ok = False
+                                    break
+                            elif item_val != fv:
+                                ok = False
+                                break
+                        if ok:
+                            count += 1
+                    return count
+                raise
 
         return await asyncio.to_thread(_run)
 
