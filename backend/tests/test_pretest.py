@@ -21,9 +21,8 @@ BASE_URL = os.environ.get(
 API = f"{BASE_URL}/api"
 
 ADMIN = {"email": "admin@learnspace.app", "password": "Admin@123"}
-COURSES = ["math", "science", "english", "history"]
-# Avoid "math" per request: prefer english for full submit flow.
-SUBMIT_COURSE = "english"
+COURSES = ["ebp", "imk", "pmo", "pvi", "std"]
+SUBMIT_COURSE = "ebp"
 
 
 def _no_mongo_id(obj):
@@ -95,16 +94,16 @@ def test_pretest_unknown_course_404(session, fresh_student):
     assert r.json()["detail"] == "course_not_found"
 
 
-def test_pretest_returns_5_questions_without_correct_index(session, fresh_student):
+def test_pretest_returns_6_questions_without_correct_index(session, fresh_student):
     r = session.get(f"{API}/tests/{SUBMIT_COURSE}/pre-test", headers=fresh_student["headers"])
     assert r.status_code == 200, r.text
     data = r.json()
     _no_mongo_id(data)
     assert data["course_id"] == SUBMIT_COURSE
-    assert data["course_title"] == "Bahasa Inggris"
+    assert data["course_title"] == "Evaluasi Belajar dan Pembelajaran"
     assert data["test_type"] == "pre_test"
-    assert data["total_questions"] == 5
-    assert len(data["questions"]) == 5
+    assert data["total_questions"] == 6
+    assert len(data["questions"]) == 6
     assert data["attempt"] is None
     for q in data["questions"]:
         assert "correct_index" not in q, "correct_index must not leak"
@@ -125,10 +124,10 @@ def test_pretest_submit_admin_forbidden(session, admin_token):
 
 
 def test_pretest_submit_invalid_option_index_422(session, fresh_student):
-    # Use a known question_id for english pre-test.
+    # Use a known question_id for ebp pre-test.
     r = session.post(
         f"{API}/tests/{SUBMIT_COURSE}/pre-test/submit",
-        json={"answers": {"english_pre_1": 9}},
+        json={"answers": {"ebp_pre_1": 9}},
         headers=fresh_student["headers"],
     )
     assert r.status_code == 422
@@ -136,14 +135,15 @@ def test_pretest_submit_invalid_option_index_422(session, fresh_student):
 
 
 def test_pretest_submit_scores_and_returns_review(session, fresh_student):
-    # Submit answers: get Q1 right, Q2 wrong, Q3 unanswered, Q4 right, Q5 right.
-    # English correct indexes: 1,0,2,1,2
+    # Submit answers: get Q1 right, Q2 wrong, Q3 unanswered, Q4 right, Q5 right, Q6 right.
+    # EBP correct indexes: 1, 2, 1, 1, 2, 1
     answers = {
-        "english_pre_1": 1,  # correct
-        "english_pre_2": 2,  # wrong
-        # english_pre_3 omitted (unanswered -> wrong)
-        "english_pre_4": 1,  # correct
-        "english_pre_5": 2,  # correct
+        "ebp_pre_1": 1,  # correct
+        "ebp_pre_2": 0,  # wrong (correct is 2)
+        # ebp_pre_3 omitted (unanswered -> wrong)
+        "ebp_pre_4": 1,  # correct
+        "ebp_pre_5": 2,  # correct
+        "ebp_pre_6": 1,  # correct
     }
     r = session.post(
         f"{API}/tests/{SUBMIT_COURSE}/pre-test/submit",
@@ -153,17 +153,17 @@ def test_pretest_submit_scores_and_returns_review(session, fresh_student):
     assert r.status_code == 200, r.text
     data = r.json()
     _no_mongo_id(data)
-    assert data["total"] == 5
-    assert data["score"] == 3
-    assert data["percentage"] == 60
-    assert len(data["review"]) == 5
+    assert data["total"] == 6
+    assert data["score"] == 4
+    assert data["percentage"] == 67
+    assert len(data["review"]) == 6
     by_id = {item["question_id"]: item for item in data["review"]}
-    assert by_id["english_pre_1"]["selected_index"] == 1
-    assert by_id["english_pre_1"]["correct_index"] == 1
-    assert by_id["english_pre_1"]["is_correct"] is True
-    assert by_id["english_pre_2"]["is_correct"] is False
-    assert by_id["english_pre_3"]["selected_index"] is None
-    assert by_id["english_pre_3"]["is_correct"] is False
+    assert by_id["ebp_pre_1"]["selected_index"] == 1
+    assert by_id["ebp_pre_1"]["correct_index"] == 1
+    assert by_id["ebp_pre_1"]["is_correct"] is True
+    assert by_id["ebp_pre_2"]["is_correct"] is False
+    assert by_id["ebp_pre_3"]["selected_index"] is None
+    assert by_id["ebp_pre_3"]["is_correct"] is False
     for item in data["review"]:
         assert "correct_index" in item  # review DOES include correct_index
         assert "options" in item and len(item["options"]) == 4
@@ -189,16 +189,16 @@ def test_pretest_result_after_submit(session, fresh_student):
     data = r.json()
     _no_mongo_id(data)
     assert data["course_id"] == SUBMIT_COURSE
-    assert data["score"] == 3
-    assert data["total"] == 5
-    assert data["percentage"] == 60
-    assert len(data["review"]) == 5
+    assert data["score"] == 4
+    assert data["total"] == 6
+    assert data["percentage"] == 67
+    assert len(data["review"]) == 6
 
 
 def test_pretest_result_no_attempt_404(session, fresh_student):
-    # history course was never submitted by this fresh student.
+    # std course was never submitted by this fresh student.
     r = session.get(
-        f"{API}/tests/history/pre-test/result",
+        f"{API}/tests/std/pre-test/result",
         headers=fresh_student["headers"],
     )
     assert r.status_code == 404
@@ -207,9 +207,9 @@ def test_pretest_result_no_attempt_404(session, fresh_student):
 
 # -------- Course progress -------------------------------------------------
 def test_course_progress_before_submit_all_locked(session, fresh_student):
-    # history was never submitted.
+    # std was never submitted.
     r = session.get(
-        f"{API}/courses/history/progress",
+        f"{API}/courses/std/progress",
         headers=fresh_student["headers"],
     )
     assert r.status_code == 200, r.text
@@ -242,7 +242,7 @@ def test_course_progress_after_submit_unlocks_all(session, fresh_student):
         assert mods[key]["locked"] is False, f"{key} should be unlocked after pre-test"
 
 
-def test_courses_list_returns_four(session, fresh_student):
+def test_courses_list_returns_five(session, fresh_student):
     r = session.get(f"{API}/courses", headers=fresh_student["headers"])
     assert r.status_code == 200, r.text
     data = r.json()
@@ -253,7 +253,7 @@ def test_courses_list_returns_four(session, fresh_student):
     submitted = next(c for c in data["courses"] if c["id"] == SUBMIT_COURSE)
     assert submitted["pre_test_completed"] is True
     assert submitted["progress"] == 14
-    unstarted = next(c for c in data["courses"] if c["id"] == "history")
+    unstarted = next(c for c in data["courses"] if c["id"] == "std")
     assert unstarted["pre_test_completed"] is False
     assert unstarted["progress"] == 0
 
@@ -266,11 +266,9 @@ def test_dashboard_reflects_pretest_completion(session, fresh_student):
     _no_mongo_id(data)
     subjects_by_id = {s["id"]: s for s in data["subjects"]}
     assert subjects_by_id[SUBMIT_COURSE]["pre_test_completed"] is True
-    assert subjects_by_id["history"]["pre_test_completed"] is False
+    assert subjects_by_id["std"]["pre_test_completed"] is False
     # continue_learning is the first course with a next_module.
     assert data["continue_learning"] is not None
-    # Order matches COURSES dict iteration order: math, science, english, history.
-    # math/science/history still have next_module=pre_test; math comes first.
     cl = data["continue_learning"]
     assert cl["next_module"] in {"pre_test", "materials"}
     assert "next_module_title" in cl

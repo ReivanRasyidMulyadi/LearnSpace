@@ -14,7 +14,8 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from supabase import Client, create_client
+import httpx
+from supabase import Client, ClientOptions, create_client
 
 load_dotenv()
 
@@ -23,7 +24,8 @@ logger = logging.getLogger(__name__)
 supabase_url = os.environ.get("SUPABASE_URL", "")
 supabase_key = os.environ.get("SUPABASE_KEY", "")
 
-supabase: Client = create_client(supabase_url, supabase_key)
+_client_options = ClientOptions(httpx_client=httpx.Client(http2=False, timeout=30.0))
+supabase: Client = create_client(supabase_url, supabase_key, options=_client_options)
 
 
 def _serialize_val(val: Any) -> Any:

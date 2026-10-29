@@ -371,7 +371,7 @@ export default function CourseModuleScreen() {
   const router = useRouter();
   const { id, moduleId } = useLocalSearchParams<{ id: string; moduleId: string }>();
 
-  const courseId = id ?? "math";
+  const courseId = id ?? "ebp";
   const modKey = moduleId ?? "materials";
 
   const [loading, setLoading] = useState(false);

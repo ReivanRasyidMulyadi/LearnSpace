@@ -16,10 +16,11 @@ import { makeStyles, radius, spacing, typography, useTheme } from "@/src/theme";
 import type { CourseCatalogItem } from "@/src/types/course";
 
 const SUBJECT_CONFIG: Record<string, { icon: IoniconName; color: string; bg: string }> = {
-  math: { icon: "calculator-outline", color: "#0F172A", bg: "#F1F5F9" },
-  science: { icon: "flask-outline", color: "#0F172A", bg: "#F1F5F9" },
-  english: { icon: "globe-outline", color: "#0F172A", bg: "#F1F5F9" },
-  history: { icon: "time-outline", color: "#0F172A", bg: "#F1F5F9" },
+  ebp: { icon: "clipboard-outline", color: "#0F172A", bg: "#F1F5F9" },
+  imk: { icon: "phone-portrait-outline", color: "#0F172A", bg: "#F1F5F9" },
+  pmo: { icon: "hardware-chip-outline", color: "#0F172A", bg: "#F1F5F9" },
+  pvi: { icon: "desktop-outline", color: "#0F172A", bg: "#F1F5F9" },
+  std: { icon: "git-network-outline", color: "#0F172A", bg: "#F1F5F9" },
 };
 
 const DEFAULT_CONFIG = { icon: "book-outline" as IoniconName, color: "#0F172A", bg: "#F1F5F9" };

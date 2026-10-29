@@ -1,31 +1,49 @@
 """Seed the normalized LearnSpace schema with real catalog content.
 
-Idempotent: safe to run on every startup. Migrates the legacy embedded-option
-questions into the normalized questions + answers collections.
+Idempotent: safe to run on every startup. Loads official curriculum
+for 5 PTI UNESA courses from kurikulum.json into normalized collections.
 """
 from __future__ import annotations
 
+import json
 import logging
+import os
+import re
 
 from db import db
 from db_models import gen_id, utcnow
 
 logger = logging.getLogger(__name__)
 
-# Stable course ids (kept as slugs to preserve existing API contracts).
+KURIKULUM_PATH = os.path.join(os.path.dirname(__file__), "kurikulum.json")
+
+# Course slug mappings
+SLUG_MAP: dict[str, str] = {
+    "MK-EBP-8320702121": "ebp",
+    "MK-IMK-8320702021": "imk",
+    "MK-PMO-8320703062": "pmo",
+    "MK-PVI-8320703063": "pvi",
+    "MK-STD-8320702122": "std",
+}
+
+OLD_COURSES: list[str] = ["math", "science", "english", "history"]
+
+# Stable course ids for external references
 COURSES: dict[str, str] = {
-    "math": "Matematika",
-    "science": "IPA",
-    "english": "Bahasa Inggris",
-    "history": "Sejarah",
+    "ebp": "Evaluasi Belajar dan Pembelajaran",
+    "imk": "Interaksi Manusia dan Komputer",
+    "pmo": "Pemrograman Mobile",
+    "pvi": "Pemrograman Visual",
+    "std": "Struktur Data",
 }
 
 # course_id -> (description, order)
 COURSE_META: dict[str, tuple[str, int]] = {
-    "math": ("Pelajari konsep matematika dasar hingga lanjutan.", 1),
-    "science": ("Jelajahi ilmu pengetahuan alam di sekitarmu.", 2),
-    "english": ("Tingkatkan kemampuan Bahasa Inggrismu.", 3),
-    "history": ("Kenali sejarah penting Indonesia dan dunia.", 4),
+    "ebp": ("Evaluasi proses dan hasil pembelajaran pada rumpun PTI UNESA.", 1),
+    "imk": ("Desain antarmuka, ergonomi interaksi, dan evaluasi kegunaan sistem.", 2),
+    "pmo": ("Pengembangan aplikasi perangkat bergerak modern berbasis Android dan Flutter.", 3),
+    "pvi": ("Pemrograman aplikasi visual berorientasi objek dan arsitektur event-driven.", 4),
+    "std": ("Struktur data linier dan non-linier, algoritma pencarian, dan pengurutan.", 5),
 }
 
 # Ordered learning flow. Pre-test is the gate for everything after it.
@@ -34,81 +52,74 @@ MODULES: list[dict] = [
     {"key": "materials", "title": "Materi", "description": "Baca materi inti pembelajaran.", "icon": "document-text"},
     {"key": "videos", "title": "Video", "description": "Tonton video penjelasan.", "icon": "videocam"},
     {"key": "manual_book", "title": "Manual Book", "description": "Unduh buku panduan PDF.", "icon": "book"},
-    {"key": "discussion", "title": "Diskusi", "description": "Berdiskusi dengan guru dan teman.", "icon": "chatbubbles"},
+    {"key": "discussion", "title": "Diskusi", "description": "Berdiskusi dengan dosen dan teman.", "icon": "chatbubbles"},
     {"key": "post_test", "title": "Post-Test", "description": "Uji pemahaman akhir.", "icon": "checkbox"},
     {"key": "results", "title": "Hasil", "description": "Lihat hasil dan sertifikat.", "icon": "trophy"},
 ]
 
-# (text, options, correct_index)
-PRE_TEST_QUESTIONS: dict[str, list[tuple[str, list[str], int]]] = {
-    "math": [
-        ("Hasil dari 12 x 8 adalah ...", ["86", "96", "106", "116"], 1),
-        ("Pecahan 3/4 sama dengan ...", ["0,25", "0,5", "0,75", "1,25"], 2),
-        ("Keliling persegi dengan sisi 7 cm adalah ...", ["14 cm", "21 cm", "28 cm", "49 cm"], 2),
-        ("Nilai x pada persamaan 2x + 6 = 14 adalah ...", ["2", "4", "6", "8"], 1),
-        ("Rata-rata dari 4, 8, dan 12 adalah ...", ["6", "7", "8", "9"], 2),
-    ],
-    "science": [
-        ("Proses tumbuhan membuat makanan dengan bantuan cahaya matahari disebut ...", ["Respirasi", "Fotosintesis", "Transpirasi", "Fermentasi"], 1),
-        ("Planet terdekat dari Matahari adalah ...", ["Venus", "Bumi", "Merkurius", "Mars"], 2),
-        ("Satuan gaya dalam SI adalah ...", ["Joule", "Watt", "Newton", "Pascal"], 2),
-        ("Air mendidih pada suhu ... derajat Celsius (tekanan normal).", ["50", "75", "100", "125"], 2),
-        ("Organ tubuh yang berfungsi memompa darah adalah ...", ["Paru-paru", "Jantung", "Hati", "Ginjal"], 1),
-    ],
-    "english": [
-        ("She ___ to school every day.", ["go", "goes", "going", "gone"], 1),
-        ("The opposite of 'happy' is ...", ["sad", "glad", "joyful", "excited"], 0),
-        ("Choose the correct sentence.", ["He don't like tea.", "He doesn't likes tea.", "He doesn't like tea.", "He not like tea."], 2),
-        ("'Book' in Bahasa Indonesia means ...", ["Meja", "Buku", "Pensil", "Kursi"], 1),
-        ("Yesterday, I ___ a movie.", ["watch", "watches", "watched", "watching"], 2),
-    ],
-    "history": [
-        ("Proklamasi Kemerdekaan Indonesia dibacakan pada tanggal ...", ["17 Agustus 1945", "28 Oktober 1928", "10 November 1945", "1 Juni 1945"], 0),
-        ("Teks proklamasi dibacakan oleh ...", ["Mohammad Hatta", "Soekarno", "Soedirman", "Sutan Sjahrir"], 1),
-        ("Hari Sumpah Pemuda diperingati setiap tanggal ...", ["17 Agustus", "28 Oktober", "10 November", "2 Mei"], 1),
-        ("Kerajaan Hindu tertua di Indonesia adalah ...", ["Majapahit", "Sriwijaya", "Kutai", "Mataram"], 2),
-        ("Hari Pahlawan diperingati untuk mengenang pertempuran di kota ...", ["Bandung", "Surabaya", "Semarang", "Yogyakarta"], 1),
-    ],
-}
-
-POST_TEST_QUESTIONS: dict[str, list[tuple[str, list[str], int]]] = {
-    "math": [
-        ("Berapakah hasil dari 25% dari 240?", ["50", "60", "70", "80"], 1),
-        ("Jika sebuah segitiga memiliki alas 12 cm dan tinggi 8 cm, maka luasnya adalah ...", ["48 cm²", "96 cm²", "36 cm²", "24 cm²"], 0),
-        ("Faktor persekutuan terbesar (FPB) dari 24 dan 36 adalah ...", ["6", "8", "12", "18"], 2),
-        ("Hasil dari (-8) + 15 - 4 adalah ...", ["1", "3", "-3", "7"], 1),
-        ("Sebuah mobil menempuh 180 km dalam waktu 3 jam. Berapakah kecepatan rata-ratanya?", ["50 km/jam", "60 km/jam", "70 km/jam", "80 km/jam"], 1),
-    ],
-    "science": [
-        ("Zat yang berfungsi mengikat dan membawa oksigen dalam sel darah merah adalah ...", ["Leukosit", "Trombosit", "Hemoglobin", "Plasma"], 2),
-        ("Perubahan wujud benda dari padat langsung menjadi gas dinamakan ...", ["Mencair", "Mengembun", "Menyublim", "Menguap"], 2),
-        ("Unit terkecil dari makhluk hidup penyusun tubuh disebut ...", ["Jaringan", "Organ", "Sel", "Sistem organ"], 2),
-        ("Energi yang dihasilkan dari aliran muatan elektron disebut ...", ["Energi kinetik", "Energi listrik", "Energi kimia", "Energi potensial"], 1),
-        ("Lapisan atmosfer tempat terjadinya fenomena cuaca (hujan, angin, awan) adalah ...", ["Troposfer", "Stratosfer", "Mesosfer", "Termosfer"], 0),
-    ],
-    "english": [
-        ("They ___ basketball in the court every Saturday afternoon.", ["play", "plays", "playing", "played"], 0),
-        ("The comparative form of the adjective 'good' is ...", ["gooder", "best", "better", "more good"], 2),
-        ("What is the closest synonym of the word 'difficult'?", ["Easy", "Hard", "Simple", "Quick"], 1),
-        ("'Where do you live?' — This question is inquiring about ...", ["Time", "Place", "Age", "Name"], 1),
-        ("She has lived here ___ five years.", ["since", "for", "during", "at"], 1),
-    ],
-    "history": [
-        ("Konferensi Meja Bundar (KMB) tahun 1949 diselenggarakan di kota ...", ["Jakarta", "Den Haag", "Yogyakarta", "Bandung"], 1),
-        ("Surat kabar tertua pembawa semangat nasionalisme yang dipimpin Tirto Adhi Soerjo adalah ...", ["De Express", "Medan Prijaji", "Fajar Asia", "Indonesia Merdeka"], 1),
-        ("Candi Borobudur di Jawa Tengah merupakan mahakarya peninggalan Dinasti ...", ["Syailendra", "Sanjaya", "Isyana", "Kertanegara"], 0),
-        ("Sumpah Palapa untuk mempersatukan Nusantara diucapkan oleh Mahapatih ...", ["Hayam Wuruk", "Gajah Mada", "Raden Wijaya", "Kertanegara"], 1),
-        ("Tujuan utama pemuda membawa Soekarno-Hatta ke Rengasdengklok adalah ...", ["Menjauhkan dari pengaruh Jepang", "Menyusun strategi perang", "Menyerah kepada Sekutu", "Membentuk kabinet baru"], 0),
-    ],
-}
-
 PRE_TEST_PASSING_SCORE = 60
+LETTER_MAP = {"A": 0, "B": 1, "C": 2, "D": 3}
 
 
-async def _seed_courses() -> None:
+def _parse_duration(duration_str: str) -> int:
+    parts = duration_str.strip().split(":")
+    if len(parts) == 2:
+        return int(parts[0]) * 60 + int(parts[1])
+    elif len(parts) == 3:
+        return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+    return 300
+
+
+def _load_kurikulum_data() -> list[dict]:
+    if os.path.exists(KURIKULUM_PATH):
+        with open(KURIKULUM_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("courses", [])
+    return []
+
+
+async def _purge_legacy_courses() -> None:
+    """Safely purge legacy dummy courses and their related entities."""
+    count_legacy = await db.courses.count_documents({"course_id": {"$in": OLD_COURSES}})
+    if count_legacy == 0:
+        return
+
+    for old_id in OLD_COURSES:
+        try:
+            discs = await db.discussions.find({"course_id": old_id}, {"_id": 0, "discussion_id": 1}).to_list(length=1000)
+            disc_ids = [d["discussion_id"] for d in discs if "discussion_id" in d]
+            if disc_ids:
+                await db.comments.delete_many({"discussion_id": {"$in": disc_ids}})
+            await db.discussions.delete_many({"course_id": old_id})
+        except Exception as e:
+            logger.warning("Error purging discussions/comments for %s: %s", old_id, e)
+
+        await db.courses.delete_many({"course_id": old_id})
+        await db.tests.delete_many({"course_id": old_id})
+        await db.questions.delete_many({"course_id": old_id})
+        await db.answers.delete_many({"question_id": {"$regex": f"^{old_id}_"}})
+        await db.materials.delete_many({"course_id": old_id})
+        await db.videos.delete_many({"course_id": old_id})
+        await db.manual_books.delete_many({"course_id": old_id})
+        await db.test_attempts.delete_many({"course_id": old_id})
+        await db.test_results.delete_many({"course_id": old_id})
+
+
+async def _seed_courses(raw_courses: list[dict]) -> None:
+    existing_courses = await db.courses.count_documents({})
+    if existing_courses >= len(raw_courses):
+        return
+
     now = utcnow()
-    for course_id, title in COURSES.items():
-        description, order = COURSE_META[course_id]
+    for idx, c in enumerate(raw_courses):
+        course_id = SLUG_MAP.get(c["course_id"])
+        if not course_id:
+            continue
+        order = idx + 1
+        description = c.get("description") or COURSE_META.get(course_id, ("", order))[0]
+        title = c["title"]
+        sks = c.get("credits_sks", 2)
+
         await db.courses.update_one(
             {"course_id": course_id},
             {
@@ -125,21 +136,46 @@ async def _seed_courses() -> None:
         )
 
 
-async def _seed_tests_questions_answers() -> None:
-    """Seed pre-test tests + normalized questions/answers; migrate legacy docs."""
+async def _seed_tests_questions_answers(raw_courses: list[dict]) -> None:
+    """Seed pre-test and post-test questions and answers derived from meetings."""
     now = utcnow()
-    for course_id, title in COURSES.items():
-        for test_type, question_map, passing_score, test_order in [
-            ("pre_test", PRE_TEST_QUESTIONS, PRE_TEST_PASSING_SCORE, 1),
-            ("post_test", POST_TEST_QUESTIONS, 70, 2),
+    for c in raw_courses:
+        course_id = SLUG_MAP.get(c["course_id"])
+        if not course_id:
+            continue
+        meetings = c.get("meetings", [])
+
+        # Question 1 of each meeting -> Pre-Test (6 questions)
+        # Question 2 of each meeting -> Post-Test (6 questions)
+        pre_items: list[tuple[str, list[str], int]] = []
+        post_items: list[tuple[str, list[str], int]] = []
+
+        for m in sorted(meetings, key=lambda x: x["meeting_number"]):
+            quizzes = m.get("quiz", [])
+            if len(quizzes) >= 1:
+                q1 = quizzes[0]
+                q1_ans = LETTER_MAP.get(q1["answer"].strip().upper(), 0)
+                q1_opts = [re.sub(r"^[A-D]\.\s*", "", opt) for opt in q1["options"]]
+                pre_items.append((q1["question"], q1_opts, q1_ans))
+            if len(quizzes) >= 2:
+                q2 = quizzes[1]
+                q2_ans = LETTER_MAP.get(q2["answer"].strip().upper(), 0)
+                q2_opts = [re.sub(r"^[A-D]\.\s*", "", opt) for opt in q2["options"]]
+                post_items.append((q2["question"], q2_opts, q2_ans))
+
+        for test_type, items, passing_score, test_order in [
+            ("pre_test", pre_items, PRE_TEST_PASSING_SCORE, 1),
+            ("post_test", post_items, 70, 2),
         ]:
-            items = question_map[course_id]
+            if not items:
+                continue
+
             test_id = f"{course_id}_{test_type}"
             type_label = "Pre-Test" if test_type == "pre_test" else "Post-Test"
             desc = (
-                f"Ukur pengetahuan awalmu tentang {title}."
+                f"Ukur pengetahuan awalmu tentang {c['title']}."
                 if test_type == "pre_test"
-                else f"Uji pemahaman akhirmu tentang materi {title}."
+                else f"Uji pemahaman akhirmu tentang materi {c['title']}."
             )
 
             await db.tests.update_one(
@@ -147,7 +183,7 @@ async def _seed_tests_questions_answers() -> None:
                 {
                     "$set": {
                         "test_id": test_id,
-                        "title": f"{type_label} {title}",
+                        "title": f"{type_label} {c['title']}",
                         "description": desc,
                         "passing_score": passing_score,
                         "total_questions": len(items),
@@ -213,87 +249,98 @@ async def _seed_tests_questions_answers() -> None:
                             "updated_at": now,
                         }
                     )
-            await db.questions.insert_many(question_docs)
-            await db.answers.insert_many(answer_docs)
-            logger.info("Seeded normalized %s for %s", test_type, course_id)
+            if question_docs:
+                await db.questions.insert_many(question_docs)
+            if answer_docs:
+                await db.answers.insert_many(answer_docs)
+            logger.info("Seeded normalized %s for %s (%d questions)", test_type, course_id, len(question_docs))
 
 
-async def _seed_learning_content() -> None:
-    """Seed real materials, videos, and manual books per course."""
+async def _seed_learning_content(raw_courses: list[dict]) -> None:
+    """Seed real materials (6 meetings), videos (12 per course), and manual books."""
+    expected_mats = sum(len(c.get("meetings", [])) for c in raw_courses)
+    expected_vids = sum(len(m.get("videos", [])) for c in raw_courses for m in c.get("meetings", []))
+    existing_mats = await db.materials.count_documents({})
+    existing_vids = await db.videos.count_documents({})
+    if existing_mats >= expected_mats and existing_vids >= expected_vids:
+        return
+
     now = utcnow()
-    for course_id, title in COURSES.items():
-        materials = [
-            (
-                f"Pengantar {title}",
-                f"Konsep dasar yang perlu kamu pahami dalam {title}.",
-                f"Pada materi ini kamu akan mengenal konsep inti {title}, "
-                f"istilah penting, dan contoh penerapannya dalam kehidupan sehari-hari.",
-            ),
-            (
-                f"Pendalaman {title}",
-                f"Materi lanjutan untuk memperkuat pemahaman {title}.",
-                f"Materi pendalaman {title} membahas penerapan konsep pada "
-                f"soal-soal dan studi kasus yang lebih kompleks.",
-            ),
-        ]
-        for i, (m_title, m_desc, m_content) in enumerate(materials):
+    for c in raw_courses:
+        course_id = SLUG_MAP.get(c["course_id"])
+        if not course_id:
+            continue
+        meetings = sorted(c.get("meetings", []), key=lambda x: x["meeting_number"])
+
+        # 1. Materials per meeting
+        for m in meetings:
+            m_num = m["meeting_number"]
+            m_title = m.get("title", f"Pertemuan {m_num}")
+            m_desc = m.get("sub_cpmk") or f"Materi Pertemuan {m_num} - {c['title']}"
+            m_content = m.get("material_content", "")
+
             await db.materials.update_one(
-                {"material_id": f"{course_id}_mat_{i + 1}"},
+                {"material_id": f"{course_id}_mat_{m_num}"},
                 {
                     "$set": {
                         "course_id": course_id,
                         "title": m_title,
                         "description": m_desc,
                         "content": m_content,
-                        "order": i + 1,
+                        "order": m_num,
                         "updated_at": now,
                     },
                     "$setOnInsert": {
-                        "material_id": f"{course_id}_mat_{i + 1}",
+                        "material_id": f"{course_id}_mat_{m_num}",
                         "created_at": now,
                     },
                 },
                 upsert=True,
             )
 
-        videos = [
-            (
-                f"Video Pengantar {title}",
-                f"Penjelasan visual konsep dasar {title}.",
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                600,
-            ),
-        ]
-        for i, (v_title, v_desc, v_url, v_dur) in enumerate(videos):
-            await db.videos.update_one(
-                {"video_id": f"{course_id}_vid_{i + 1}"},
-                {
-                    "$set": {
-                        "course_id": course_id,
-                        "title": v_title,
-                        "description": v_desc,
-                        "url": v_url,
-                        "duration_seconds": v_dur,
-                        "order": i + 1,
-                        "updated_at": now,
-                    },
-                    "$setOnInsert": {
-                        "video_id": f"{course_id}_vid_{i + 1}",
-                        "created_at": now,
-                    },
-                },
-                upsert=True,
-            )
+        # 2. Videos per meeting (2 videos each)
+        video_order = 1
+        for m in meetings:
+            for v in m.get("videos", []):
+                vid_id = f"{course_id}_vid_{video_order}"
+                v_title = v.get("title", f"Video {video_order}")
+                v_channel = v.get("channel", "E-Learning UNESA")
+                v_desc = f"Pertemuan {m['meeting_number']} - Kanal: {v_channel}"
+                v_url = v.get("embed_url") or v.get("url") or "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                v_dur = _parse_duration(v.get("duration", "05:00"))
 
+                await db.videos.update_one(
+                    {"video_id": vid_id},
+                    {
+                        "$set": {
+                            "course_id": course_id,
+                            "title": v_title,
+                            "description": v_desc,
+                            "url": v_url,
+                            "duration_seconds": v_dur,
+                            "order": video_order,
+                            "updated_at": now,
+                        },
+                        "$setOnInsert": {
+                            "video_id": vid_id,
+                            "created_at": now,
+                        },
+                    },
+                    upsert=True,
+                )
+                video_order += 1
+
+        # 3. Manual Book / RPS
+        sks = c.get("credits_sks", 2)
         await db.manual_books.update_one(
             {"book_id": f"{course_id}_book"},
             {
                 "$set": {
                     "course_id": course_id,
-                    "title": f"Buku Panduan {title}",
-                    "description": f"Panduan lengkap {title} dalam format PDF.",
+                    "title": f"Buku Panduan & RPS {c['title']}",
+                    "description": f"Rencana Pembelajaran Semester (RPS) dan Modul Kuliah {c['title']} ({sks} SKS) - UNESA S1 PTI.",
                     "file_url": "https://www.africau.edu/images/default/sample.pdf",
-                    "pages": 24,
+                    "pages": 32,
                     "updated_at": now,
                 },
                 "$setOnInsert": {"book_id": f"{course_id}_book", "created_at": now},
@@ -325,8 +372,8 @@ async def _seed_default_accounts() -> None:
                 "profile_id": "prof_admin_001",
                 "user_id": "user_admin_001",
                 "bio": "Administrator Utama LearnSpace",
-                "school": "LearnSpace Academy",
-                "grade": "Staff",
+                "school": "UNESA S1 PTI",
+                "grade": "Dosen / Staff",
                 "created_at": now,
                 "updated_at": now,
             }
@@ -341,7 +388,7 @@ async def _seed_default_accounts() -> None:
             {
                 "user_id": "user_student_001",
                 "email": "student@learnspace.app",
-                "name": "Siswa Teladan",
+                "name": "Mahasiswa PTI",
                 "role": "STUDENT",
                 "password_hash": pw_hash,
                 "created_at": now,
@@ -352,9 +399,9 @@ async def _seed_default_accounts() -> None:
             {
                 "profile_id": "prof_student_001",
                 "user_id": "user_student_001",
-                "bio": "Siswa aktif LearnSpace",
-                "school": "SMA Negeri 1",
-                "grade": "Kelas 10",
+                "bio": "Mahasiswa aktif S1 Pendidikan Teknologi Informasi",
+                "school": "Universitas Negeri Surabaya",
+                "grade": "Semester 4",
                 "created_at": now,
                 "updated_at": now,
             }
@@ -364,7 +411,12 @@ async def _seed_default_accounts() -> None:
 async def seed_database() -> None:
     """Master seeder for the normalized catalog."""
     await _seed_default_accounts()
-    await _seed_courses()
-    await _seed_tests_questions_answers()
-    await _seed_learning_content()
-    logger.info("LearnSpace catalog seeded")
+    await _purge_legacy_courses()
+    raw_courses = _load_kurikulum_data()
+    if raw_courses:
+        await _seed_courses(raw_courses)
+        await _seed_tests_questions_answers(raw_courses)
+        await _seed_learning_content(raw_courses)
+        logger.info("LearnSpace catalog seeded with %d courses from kurikulum.json", len(raw_courses))
+    else:
+        logger.warning("No courses found in kurikulum.json to seed")

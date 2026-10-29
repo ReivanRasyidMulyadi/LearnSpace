@@ -177,12 +177,12 @@ export default function StudentDashboard() {
 
   const firstName = user?.name?.split(" ")[0] ?? "Siswa";
   const cl = data?.continue_learning;
-  const heroCourse = cl?.course_id ?? "math";
+  const heroCourse = cl?.course_id ?? "ebp";
   const heroTitle = cl
     ? cl.next_module === "pre_test"
       ? `Mulai dengan Pre-Test ${cl.title}`
       : `Lanjut ke ${cl.next_module_title} ${cl.title}`
-    : "Mulai dengan Pre-Test Matematika";
+    : "Mulai dengan Pre-Test Evaluasi Belajar dan Pembelajaran";
   const heroCta = cl && cl.next_module !== "pre_test" ? "Lanjutkan modul" : "Buka modul pertama";
 
   return (
