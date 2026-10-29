@@ -39,6 +39,12 @@ async def build_course_progress(user_id: str, course_id: str) -> dict:
         {"user_id": user_id, "course_id": course_id}, {"_id": 0}
     )
     completed = set((doc or {}).get("completed_modules", []))
+    if "pre_test" not in completed:
+        if await db.test_results.find_one({"user_id": user_id, "course_id": course_id, "test_type": "pre_test"}):
+            completed.add("pre_test")
+    if "post_test" not in completed:
+        if await db.test_results.find_one({"user_id": user_id, "course_id": course_id, "test_type": "post_test"}):
+            completed.add("post_test")
     pre_test_done = "pre_test" in completed
 
     modules = []
