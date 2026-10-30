@@ -13,4 +13,9 @@ export const testsService = {
 
   getCourseProgress: (courseId: string) =>
     apiFetch<CourseProgress>(`/courses/${courseId}/progress`),
+
+  resetPreTest: (courseId: string) =>
+    apiFetch<{ ok: boolean }>(`/tests/${courseId}/pre-test/reset`, {
+      method: "POST",
+    }),
 };

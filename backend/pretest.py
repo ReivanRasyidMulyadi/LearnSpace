@@ -200,3 +200,17 @@ async def get_pre_test_result(
     if not result:
         raise HTTPException(status_code=404, detail="no_attempt")
     return _result_response(result)
+
+
+@router.post("/{course_id}/pre-test/reset")
+async def reset_pre_test(
+    course_id: str, user: UserPublic = Depends(require_role("STUDENT"))
+):
+    await _require_course_title(course_id)
+    await db.test_results.delete_many(
+        {"user_id": user.user_id, "course_id": course_id, "test_type": TEST_TYPE}
+    )
+    await db.test_attempts.delete_many(
+        {"user_id": user.user_id, "course_id": course_id, "test_type": TEST_TYPE}
+    )
+    return {"ok": True, "message": "Pre-test reset successfully"}

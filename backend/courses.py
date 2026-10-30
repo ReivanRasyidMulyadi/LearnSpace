@@ -238,15 +238,36 @@ async def submit_post_test(
     pct = round((score / total) * 100)
     now = datetime.now(timezone.utc)
     res_id = f"res_{uuid.uuid4().hex[:12]}"
+    attempt_id = f"att_{uuid.uuid4().hex[:12]}"
+    test_id = f"{course_id}_post_test"
+
+    await db.test_attempts.insert_one(
+        {
+            "attempt_id": attempt_id,
+            "user_id": user.user_id,
+            "test_id": test_id,
+            "course_id": course_id,
+            "test_type": "post_test",
+            "status": "submitted",
+            "started_at": now,
+            "completed_at": now,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
 
     result_doc = {
         "result_id": res_id,
+        "attempt_id": attempt_id,
         "user_id": user.user_id,
+        "test_id": test_id,
         "course_id": course_id,
         "test_type": "post_test",
+        "answers": payload.answers,
         "score": score,
         "total": total,
         "percentage": pct,
+        "passed": pct >= 70,
         "review": review,
         "completed_at": now,
         "created_at": now,
@@ -255,15 +276,16 @@ async def submit_post_test(
     await db.test_results.insert_one(dict(result_doc))
 
     # Mark post_test and results as completed
-    await db.course_progress.update_one(
-        {"user_id": user.user_id, "course_id": course_id},
-        {
-            "$addToSet": {"completed_modules": {"$each": ["post_test", "results"]}},
-            "$set": {"updated_at": now.isoformat()},
-            "$setOnInsert": {"created_at": now.isoformat()},
-        },
-        upsert=True,
-    )
+    for mod in ["post_test", "results"]:
+        await db.course_progress.update_one(
+            {"user_id": user.user_id, "course_id": course_id},
+            {
+                "$addToSet": {"completed_modules": mod},
+                "$set": {"updated_at": now.isoformat()},
+                "$setOnInsert": {"created_at": now.isoformat()},
+            },
+            upsert=True,
+        )
 
     return {
         "result_id": res_id,

@@ -675,12 +675,23 @@ export default function CourseModuleScreen() {
                 </Text>
               </View>
 
-              <Button
-                label="Lihat Sertifikat & Hasil Akhir"
-                onPress={() => router.replace(`/course/${courseId}/module/results`)}
-                leftIcon={<Icon name="trophy" size={18} color="#FFFFFF" />}
-                style={{ marginTop: spacing.md, marginBottom: spacing.xl }}
-              />
+              <View style={{ gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.xl }}>
+                <Button
+                  label="Lihat Sertifikat & Hasil Akhir"
+                  onPress={() => router.replace(`/course/${courseId}/module/results`)}
+                  leftIcon={<Icon name="trophy" size={18} color="#FFFFFF" />}
+                />
+                <Button
+                  label="Ulangi Pengerjaan Post-Test"
+                  variant="outline"
+                  onPress={() => {
+                    setPostTestResult(null);
+                    setAnswers({});
+                    setPostTestIndex(0);
+                  }}
+                  leftIcon={<Icon name="refresh-outline" size={18} color={colors.onSurface} />}
+                />
+              </View>
             </View>
           )}
         </View>

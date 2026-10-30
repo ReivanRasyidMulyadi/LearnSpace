@@ -122,6 +122,18 @@ export default function PreTestScreen() {
     if (courseId) load();
   }, [courseId, load]);
 
+  const handleRetake = async () => {
+    try {
+      await testsService.resetPreTest(courseId);
+    } catch {
+      // ignore
+    }
+    setAttempt(null);
+    setAnswers({});
+    setIndex(0);
+    setPhase("intro");
+  };
+
   const goBackToCourse = () => router.replace(`/course/${courseId}`);
 
   const submit = async () => {
@@ -240,7 +252,12 @@ export default function PreTestScreen() {
       ) : null}
 
       {phase === "result" && attempt ? (
-        <PreTestResult attempt={attempt} courseTitle={data.course_title} onContinue={goBackToCourse} />
+        <PreTestResult
+          attempt={attempt}
+          courseTitle={data.course_title}
+          onContinue={goBackToCourse}
+          onRetake={handleRetake}
+        />
       ) : null}
 
       {/* Confirmation Modal */}

@@ -1,9 +1,10 @@
 import { useCallback, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Modal, Platform, Pressable, Text, View } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import {
   Badge,
+  Button,
   Card,
   EmptyState,
   Icon,
@@ -120,6 +121,43 @@ const useStyles = makeStyles((colors) => ({
     textAlign: "center",
     marginVertical: spacing.md,
   },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xl,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    padding: spacing.xl,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.md,
+    ...(Platform.OS === "web"
+      ? ({ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" } as any)
+      : {}),
+  },
+  modalTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.onSurface,
+    letterSpacing: -0.3,
+  },
+  modalMessage: {
+    fontSize: typography.size.base,
+    color: colors.onSurfaceTertiary,
+    lineHeight: 22,
+  },
+  modalBtnRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.xs,
+  },
 }));
 
 export default function CourseDetail() {
@@ -132,6 +170,7 @@ export default function CourseDetail() {
   const [progress, setProgress] = useState<CourseProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const [lockedModalModule, setLockedModalModule] = useState<CourseModuleState | null>(null);
 
   const load = useCallback(() => {
     setError(null);
@@ -148,12 +187,12 @@ export default function CourseDetail() {
   );
 
   const openModule = (m: CourseModuleState) => {
-    if (m.locked) {
-      setHint("Selesaikan Pre-Test terlebih dahulu untuk membuka modul ini.");
-      return;
-    }
     if (m.key === "pre_test") {
       router.push(`/course/${courseId}/pre-test`);
+      return;
+    }
+    if (m.locked) {
+      setLockedModalModule(m);
       return;
     }
     if (m.key === "discussion") {
@@ -240,6 +279,55 @@ export default function CourseDetail() {
           {hint}
         </Text>
       ) : null}
+
+      {/* Locked Module Modal */}
+      <Modal
+        visible={lockedModalModule !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLockedModalModule(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setLockedModalModule(null)}>
+          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+              <Icon name="lock-closed" size={22} color={colors.brandPrimary} />
+              <Text style={styles.modalTitle}>
+                Modul {lockedModalModule?.title}
+              </Text>
+            </View>
+            <Text style={styles.modalMessage}>
+              Alur pembelajaran merekomendasikan menyelesaikan Pre-Test terlebih dahulu. Anda juga dapat langsung membuka modul ini untuk mempelajari materi dan mencoba fitur.
+            </Text>
+            <View style={styles.modalBtnRow}>
+              <Button
+                label="Langsung Buka"
+                variant="outline"
+                style={{ flex: 1 }}
+                onPress={() => {
+                  const target = lockedModalModule;
+                  setLockedModalModule(null);
+                  if (target) {
+                    if (target.key === "discussion") {
+                      router.push(`/course/${courseId}/discussion`);
+                    } else {
+                      router.push(`/course/${courseId}/module/${target.key}`);
+                    }
+                  }
+                }}
+              />
+              <Button
+                label="Mulai Pre-Test"
+                variant="primary"
+                style={{ flex: 1 }}
+                onPress={() => {
+                  setLockedModalModule(null);
+                  router.push(`/course/${courseId}/pre-test`);
+                }}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScreenContainer>
   );
 }

@@ -8,6 +8,7 @@ interface Props {
   attempt: TestAttempt;
   courseTitle: string;
   onContinue: () => void;
+  onRetake?: () => void;
 }
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
@@ -133,7 +134,7 @@ function feedback(pct: number): string {
   return "Titik awal yang baik! Seluruh modul kini terbuka agar kamu dapat belajar bertahap.";
 }
 
-export function PreTestResult({ attempt, courseTitle, onContinue }: Props) {
+export function PreTestResult({ attempt, courseTitle, onContinue, onRetake }: Props) {
   const styles = useStyles();
   const { colors } = useTheme();
   const fmt = (i: number | null, opts: string[]) =>
@@ -186,14 +187,25 @@ export function PreTestResult({ attempt, courseTitle, onContinue }: Props) {
         </Card>
       ))}
 
-      <Button
-        label="Lanjut ke Materi Kelas"
-        fullWidth
-        style={styles.cta}
-        onPress={onContinue}
-        testID="pretest-continue"
-        leftIcon={<Icon name="arrow-forward" size={16} color={colors.onBrandPrimary} />}
-      />
+      <View style={{ gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.xl }}>
+        <Button
+          label="Lanjut ke Materi Kelas"
+          fullWidth
+          onPress={onContinue}
+          testID="pretest-continue"
+          leftIcon={<Icon name="arrow-forward" size={16} color={colors.onBrandPrimary} />}
+        />
+        {onRetake ? (
+          <Button
+            label="Ulangi Pengerjaan Pre-Test"
+            variant="outline"
+            fullWidth
+            onPress={onRetake}
+            testID="pretest-retake"
+            leftIcon={<Icon name="refresh-outline" size={16} color={colors.onSurface} />}
+          />
+        ) : null}
+      </View>
     </View>
   );
 }
