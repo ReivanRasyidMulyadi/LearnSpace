@@ -27,21 +27,22 @@ export default function StudentLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.brandPrimary,
+        tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: colors.surfaceSecondary,
+          backgroundColor: "#0D1017",
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: Platform.OS === "web" ? 62 : 60,
-          paddingTop: 6,
-          paddingBottom: Platform.OS === "web" ? 8 : 6,
-          ...(Platform.OS === "web" ? ({ boxShadow: "0 -1px 2px 0 rgba(0, 0, 0, 0.02)" } as any) : {}),
+          height: Platform.OS === "web" ? 64 : 62,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === "web" ? 8 : 8,
+          ...(Platform.OS === "web" ? ({ boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.3)" } as any) : {}),
         },
         tabBarLabelStyle: {
-          fontWeight: "500",
+          fontWeight: "600",
           fontSize: 11,
           letterSpacing: 0.2,
+          marginTop: 2,
         },
         tabBarItemStyle: {
           alignSelf: "center",
@@ -59,15 +60,15 @@ export default function StudentLayout() {
       <Tabs.Screen
         name="courses"
         options={{
-          title: "Kelas",
-          tabBarIcon: makeIcon("book-outline", "book"),
+          title: "Jadwal",
+          tabBarIcon: makeIcon("time-outline", "time"),
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
-          title: "Progres",
-          tabBarIcon: makeIcon("stats-chart-outline", "stats-chart"),
+          title: "Kalender",
+          tabBarIcon: makeIcon("calendar-outline", "calendar"),
         }}
       />
       <Tabs.Screen

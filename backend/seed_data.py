@@ -383,7 +383,7 @@ async def _seed_default_accounts() -> None:
             {
                 "user_id": "user_student_001",
                 "email": "student@learnspace.app",
-                "name": "Mahasiswa PTI",
+                "name": "Reivan Rasyid Mulyadi",
                 "role": "STUDENT",
                 "password_hash": pw_hash,
                 "created_at": now,

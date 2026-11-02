@@ -46,24 +46,24 @@ const light = {
 };
 
 const dark: ThemeColors = {
-  // Surfaces - Deep Midnight Navy (OLED friendly)
-  surface: "#0B1120",
-  onSurface: "#F8FAFC",
-  surfaceSecondary: "#1E293B",
-  onSurfaceSecondary: "#F8FAFC",
-  surfaceTertiary: "#0F172A",
-  onSurfaceTertiary: "#94A3B8",
+  // Surfaces - Deep Obsidian & Midnight Charcoal (matches academic student portal screenshot)
+  surface: "#0B0D13", // Crisp dark obsidian canvas
+  onSurface: "#FFFFFF", // Pure white for primary headings & values
+  surfaceSecondary: "#141721", // Sleek dark card background
+  onSurfaceSecondary: "#F1F5F9",
+  surfaceTertiary: "#1B1F2C", // Elevated container & tile background
+  onSurfaceTertiary: "#94A3B8", // Slate-400 for secondary info
   surfaceInverse: "#F8FAFC",
-  onSurfaceInverse: "#0B1120",
-  muted: "#64748B",
+  onSurfaceInverse: "#0B0D13",
+  muted: "#78859B", // Muted slate captions & labels
 
-  // Brand - Glowing Royal Blue
-  brand: "#3B82F6",
+  // Brand - UNESA Royal Blue
+  brand: "#2563EB",
   onBrand: "#FFFFFF",
-  brandPrimary: "#3B82F6",
+  brandPrimary: "#2563EB",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#60A5FA",
-  onBrandSecondary: "#0B1120",
+  brandSecondary: "#3B82F6",
+  onBrandSecondary: "#0B0D13",
   brandTertiary: "#1E3A8A",
   onBrandTertiary: "#93C5FD",
 
@@ -78,14 +78,14 @@ const dark: ThemeColors = {
   onInfo: "#93C5FD",
 
   // Lines
-  border: "#334155",
-  borderStrong: "#475569",
-  divider: "#1E293B",
+  border: "#202534", // Subtle 1px crisp outline
+  borderStrong: "#2E354A",
+  divider: "#181C27",
 };
 
 export type ThemeColors = typeof light;
 
-export const defaultScheme = "light" satisfies ColorScheme;
+export const defaultScheme = "dark" satisfies ColorScheme;
 export const themes: { light: ThemeColors; dark: ThemeColors } = { light, dark };
 
 export const spacing = {
@@ -99,9 +99,10 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 6,
-  md: 10,
-  lg: 14,
+  sm: 8,
+  md: 12,
+  lg: 18,
+  xl: 24,
   pill: 999,
 } as const;
 
