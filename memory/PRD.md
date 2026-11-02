@@ -18,7 +18,7 @@ Login/Register → Dashboard (role-aware) → Course Detail (Pre-Test → Materi
 ## Auth
 Dual providers through the same `/api/auth` surface:
 1. Email + Password: `POST /api/auth/register`, `POST /api/auth/login`
-2. Emergent Google OAuth: `POST /api/auth/session` (session_id → session_token)
+2. Google OAuth: `POST /api/auth/session` (session_id → session_token)
 Both issue a 7-day opaque `session_token`; only its SHA-256 hash is stored in the TTL-indexed `user_sessions` collection.
 Validation: `GET /api/auth/me` with `Authorization: Bearer`.
 Logout: `POST /api/auth/logout`, followed by secure local token removal.
@@ -29,7 +29,7 @@ Passwords are bcrypt-hashed, emails are normalized and unique, password/name/ema
 - `db.py` — Mongo client, indexes for all 15 collections (identity + relationships).
 - `db_models.py` — normalized document models for every entity.
 - `models.py` — Pydantic API DTOs.
-- `auth.py` — bcrypt passwords, hashed session tokens, role dependencies, Emergent OAuth, profile creation + legacy migration.
+- `auth.py` — bcrypt passwords, hashed session tokens, role dependencies, Google OAuth, profile creation + legacy migration.
 - `seed_data.py` — seeds real catalog (courses, tests, questions, answers, materials, videos, manual books); idempotent + migrates legacy embedded-option questions.
 - `courses.py` — DB-backed course catalog + module unlock state.
 - `pretest.py` — pre-test engine on normalized questions/answers; records attempt + result.

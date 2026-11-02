@@ -24,8 +24,8 @@ from models import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 SESSION_TTL = timedelta(days=7)
-EMERGENT_SESSION_DATA_URL = (
-    "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+OAUTH_SESSION_DATA_URL = (
+    "https://auth.learnspace.app/oauth/session-data"
 )
 DUMMY_PASSWORD_HASH = bcrypt.hashpw(secrets.token_bytes(32), bcrypt.gensalt())
 
@@ -182,11 +182,11 @@ async def google_session(payload: GoogleSessionRequest) -> AuthResponse:
     try:
         async with httpx.AsyncClient(timeout=15.0) as http:
             response = await http.get(
-                EMERGENT_SESSION_DATA_URL,
+                OAUTH_SESSION_DATA_URL,
                 headers={"X-Session-ID": payload.session_id},
             )
     except httpx.HTTPError as exc:
-        raise HTTPException(status_code=401, detail="emergent_unreachable") from exc
+        raise HTTPException(status_code=401, detail="oauth_provider_unreachable") from exc
 
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="invalid_session_id")
@@ -196,7 +196,7 @@ async def google_session(payload: GoogleSessionRequest) -> AuthResponse:
     name = data.get("name") or email.split("@")[0] or "LearnSpace User"
     picture = data.get("picture")
     if not email:
-        raise HTTPException(status_code=401, detail="emergent_missing_email")
+        raise HTTPException(status_code=401, detail="oauth_missing_email")
 
     existing = await db.users.find_one({"email": email}, {"_id": 0})
     if existing:

@@ -209,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     setOperation("google");
     const redirectUrl = getRedirectUrl();
-    const authUrl = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+    const authUrl = `https://auth.learnspace.app/?redirect=${encodeURIComponent(redirectUrl)}`;
 
     if (Platform.OS === "web") {
       window.location.href = authUrl;
