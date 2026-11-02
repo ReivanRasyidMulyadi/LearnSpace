@@ -50,6 +50,10 @@ export default function AdminLayout() {
         options={{ title: "Overview", tabBarIcon: makeIcon("grid") }}
       />
       <Tabs.Screen
+        name="presensi"
+        options={{ title: "Presensi QR", tabBarIcon: makeIcon("qr-code") }}
+      />
+      <Tabs.Screen
         name="users"
         options={{ title: "Users", tabBarIcon: makeIcon("people") }}
       />

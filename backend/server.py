@@ -10,6 +10,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
 from auth import migrate_auth_data, router as auth_router  # noqa: E402
+from attendance import router as attendance_router  # noqa: E402
 from courses import router as courses_router  # noqa: E402
 from dashboard import router as dashboard_router  # noqa: E402
 from db import client, ensure_indexes  # noqa: E402
@@ -43,6 +44,7 @@ api_router.include_router(dashboard_router)
 api_router.include_router(courses_router)
 api_router.include_router(pretest_router)
 api_router.include_router(discussion_router)
+api_router.include_router(attendance_router)
 app.include_router(api_router)
 
 app.add_middleware(

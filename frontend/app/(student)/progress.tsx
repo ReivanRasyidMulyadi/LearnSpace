@@ -560,7 +560,7 @@ export default function CalendarProgressScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Kalender & Progres</Text>
         <Text style={styles.subtitle}>
-          Agenda perkuliahan dan statistik belajar mahasiswa
+          Agenda perkuliahan dan statistik belajar siswa
         </Text>
       </View>
 

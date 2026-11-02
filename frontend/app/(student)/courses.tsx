@@ -1,5 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
+  Image,
   Modal,
   Platform,
   Pressable,
@@ -7,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -32,68 +35,8 @@ interface ScheduleItem {
   alpha: number;
 }
 
-const SCHEDULE_METADATA: Record<string, Partial<ScheduleItem>> = {
-  imk: {
-    dosen: "ATAN PRAMANA, M.Kom.",
-    time: "13:00 - 14:40",
-    room: "Ruang A10.04.09",
-    day: "Senin",
-    sks: 2,
-    hadir: 8,
-    totalMeetings: 16,
-    sakit: 0,
-    izin: 1,
-    alpha: 0,
-  },
-  ebp: {
-    dosen: "PROF. DR. EKOHARIADI, M.Pd.",
-    time: "07:00 - 08:40",
-    room: "Ruang A10.03.02",
-    day: "Senin",
-    sks: 2,
-    hadir: 8,
-    totalMeetings: 16,
-    sakit: 0,
-    izin: 0,
-    alpha: 0,
-  },
-  pmo: {
-    dosen: "I KADEK DWI NURYANA, S.T., M.Kom.",
-    time: "09:30 - 12:00",
-    room: "Lab Mobile A10.02.01",
-    day: "Selasa",
-    sks: 3,
-    hadir: 7,
-    totalMeetings: 16,
-    sakit: 1,
-    izin: 0,
-    alpha: 0,
-  },
-  pvi: {
-    dosen: "DWI FATRIANTO AGUS S., S.T., M.T.",
-    time: "13:00 - 15:30",
-    room: "Lab Software Engineering",
-    day: "Kamis",
-    sks: 3,
-    hadir: 8,
-    totalMeetings: 16,
-    sakit: 0,
-    izin: 0,
-    alpha: 0,
-  },
-  std: {
-    dosen: "YENI ANISTYASARI, S.Kom., M.Kom.",
-    time: "07:00 - 09:30",
-    room: "Ruang A10.04.05",
-    day: "Jumat",
-    sks: 3,
-    hadir: 8,
-    totalMeetings: 16,
-    sakit: 0,
-    izin: 0,
-    alpha: 0,
-  },
-};
+// shortcut: no real schedule API yet, uses course list as cards without hardcoded dosen/room
+const SCHEDULE_METADATA: Record<string, Partial<ScheduleItem>> = {};
 
 const DAYS = ["Semua", "Senin", "Selasa", "Kamis", "Jumat"];
 
@@ -356,6 +299,38 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.md,
     marginVertical: spacing.sm,
   },
+  qrInputBox: {
+    width: "100%",
+    backgroundColor: "#1B1F2C",
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: "#202534",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+    color: "#FFFFFF",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  detectedBox: {
+    width: "100%",
+    backgroundColor: "rgba(34, 197, 94, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(34, 197, 94, 0.3)",
+    borderRadius: radius.md,
+    padding: spacing.md,
+    alignItems: "center",
+    gap: 6,
+  },
+  successBanner: {
+    width: "100%",
+    backgroundColor: "rgba(34, 197, 94, 0.2)",
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: "#22C55E",
+    padding: spacing.md,
+    alignItems: "center",
+    gap: 4,
+  },
 }));
 
 export default function CoursesScreen() {
@@ -367,11 +342,20 @@ export default function CoursesScreen() {
   const [selectedDay, setSelectedDay] = useState("Semua");
   const [activeQrModal, setActiveQrModal] = useState<ScheduleItem | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [userAttendances, setUserAttendances] = useState<Array<{ course_id: string }>>([]);
+  const [detectedSession, setDetectedSession] = useState<any>(null);
+  const [qrInput, setQrInput] = useState("");
+  const [scanSubmitting, setScanSubmitting] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const res = await apiFetch<{ courses: CourseCatalogItem[] }>("/courses");
+      const [res, attRes] = await Promise.all([
+        apiFetch<{ courses: CourseCatalogItem[] }>("/courses"),
+        apiFetch<{ records: Array<{ course_id: string }> }>("/attendance/history").catch(() => ({ records: [] })),
+      ]);
       setCourses(res.courses ?? []);
+      setUserAttendances(attRes.records ?? []);
     } catch {
       setCourses([]);
     }
@@ -389,22 +373,63 @@ export default function CoursesScreen() {
     setRefreshing(false);
   };
 
-  // Merge backend courses with schedule metadata
-  const scheduleItems: ScheduleItem[] = courses.map((c) => {
+  const openQrScannerModal = async (item: ScheduleItem) => {
+    setActiveQrModal(item);
+    setQrInput("");
+    setScanSuccess(null);
+    setDetectedSession(null);
+    try {
+      const sRes = await apiFetch<{ sessions: any[] }>(
+        `/attendance/session/active?course_id=${item.courseId}`
+      );
+      if (sRes.sessions && sRes.sessions.length > 0) {
+        setDetectedSession(sRes.sessions[0]);
+        setQrInput(sRes.sessions[0].qr_code);
+      }
+    } catch {
+      // fallback
+    }
+  };
+
+  const handleScanSubmit = async (codeToSubmit?: string) => {
+    const code = (codeToSubmit || qrInput).trim();
+    if (!code) {
+      Alert.alert("Perhatian", "Silakan masukkan atau scan kode QR presensi terlebih dahulu.");
+      return;
+    }
+    setScanSubmitting(true);
+    try {
+      const res = await apiFetch<any>("/attendance/scan", {
+        method: "POST",
+        body: JSON.stringify({ qr_code: code }),
+      });
+      setScanSuccess(res.message || "Presensi berhasil dicatat!");
+      await load();
+    } catch (err: any) {
+      Alert.alert("Gagal Presensi", err.message || "Kode QR tidak valid atau sudah digunakan.");
+    } finally {
+      setScanSubmitting(false);
+    }
+  };
+
+  // Merge backend courses with schedule metadata and live attendance
+  const scheduleItems: ScheduleItem[] = courses.map((c, idx) => {
     const meta = SCHEDULE_METADATA[c.id] || {};
+    const dayAssign = DAYS[1 + (idx % (DAYS.length - 1))]; // distribute across days
+    const attendedCount = userAttendances.filter((a) => a.course_id === c.id).length;
     return {
       courseId: c.id,
       title: c.title,
       sks: meta.sks ?? 2,
-      dosen: meta.dosen ?? "Dosen PTI UNESA",
-      time: meta.time ?? "13:00 - 14:40",
-      room: meta.room ?? "Ruang A10.04.09",
-      day: meta.day ?? "Senin",
+      dosen: meta.dosen ?? "-",
+      time: meta.time ?? "-",
+      room: meta.room ?? "-",
+      day: meta.day ?? dayAssign,
       status: (c.progress > 0 ? "Selesai" : "Berlangsung") as any,
-      hadir: meta.hadir ?? 8,
-      totalMeetings: meta.totalMeetings ?? 16,
+      hadir: (meta.hadir ?? 0) + attendedCount,
+      totalMeetings: meta.totalMeetings ?? (c.total_modules || 6),
       sakit: meta.sakit ?? 0,
-      izin: meta.izin ?? 1,
+      izin: meta.izin ?? 0,
       alpha: meta.alpha ?? 0,
     };
   });
@@ -524,7 +549,7 @@ export default function CoursesScreen() {
             <View style={styles.btnRow}>
               <Pressable
                 style={styles.actionBtnLeft}
-                onPress={() => setActiveQrModal(item)}
+                onPress={() => openQrScannerModal(item)}
               >
                 <Icon name="qr-code-outline" size={17} color="#93C5FD" />
                 <Text style={styles.actionBtnLeftText}>Presensi QR</Text>
@@ -551,24 +576,75 @@ export default function CoursesScreen() {
       >
         <Pressable style={styles.modalOverlay} onPress={() => setActiveQrModal(null)}>
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
-            <Text style={{ fontSize: 18, fontWeight: "bold", color: colors.onSurface, textAlign: "center" }}>
-              Presensi Pertemuan
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: "#FFFFFF", textAlign: "center" }}>
+              Scan QR Presensi Guru
             </Text>
             <Text style={{ fontSize: 13, color: colors.muted, textAlign: "center" }}>
               {activeQrModal?.title}
             </Text>
 
-            <View style={styles.qrBox}>
-              <Icon name="qr-code" size={130} color="#0F172A" />
-            </View>
+            {scanSuccess ? (
+              <View style={styles.successBanner}>
+                <Icon name="checkmark-circle" size={32} color="#22C55E" />
+                <Text style={{ color: "#22C55E", fontWeight: "bold", fontSize: 15, textAlign: "center" }}>
+                  {scanSuccess}
+                </Text>
+                <Text style={{ color: colors.muted, fontSize: 12, textAlign: "center" }}>
+                  Kehadiranmu pada sesi ini telah berhasil dicatat.
+                </Text>
+              </View>
+            ) : (
+              <>
+                {detectedSession ? (
+                  <View style={styles.detectedBox}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Icon name="radio" size={14} color="#22C55E" />
+                      <Text style={{ color: "#22C55E", fontSize: 12, fontWeight: "bold" }}>
+                        Sesi Pertemuan Guru Terdeteksi Aktif!
+                      </Text>
+                    </View>
+                    <Text style={{ color: "#FFFFFF", fontSize: 13, fontWeight: "bold", textAlign: "center" }}>
+                      {detectedSession.title}
+                    </Text>
+                    <Text style={{ color: "#60A5FA", fontSize: 12, fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" }}>
+                      {detectedSession.qr_code}
+                    </Text>
+                    <Button
+                      label={scanSubmitting ? "Memverifikasi..." : "Presensi Sesi Ini Sekarang"}
+                      variant="primary"
+                      fullWidth
+                      onPress={() => handleScanSubmit(detectedSession.qr_code)}
+                      disabled={scanSubmitting}
+                    />
+                  </View>
+                ) : null}
 
-            <Text style={{ fontSize: 12, color: colors.onSurfaceTertiary, textAlign: "center", lineHeight: 18 }}>
-              Tunjukkan kode QR ini ke kamera scanner dosen atau pengawas kelas untuk verifikasi kehadiran.
-            </Text>
+                <Text style={{ color: colors.muted, fontSize: 12, marginTop: 4 }}>
+                  Atau ketik / tempel kode QR yang tampil di layar guru:
+                </Text>
+
+                <TextInput
+                  style={styles.qrInputBox}
+                  placeholder="Contoh: PRESENSI-EBP-M1-XXXX"
+                  placeholderTextColor="#64748B"
+                  value={qrInput}
+                  onChangeText={setQrInput}
+                  autoCapitalize="characters"
+                />
+
+                <Button
+                  label={scanSubmitting ? "Mengirim..." : "Kirim Presensi"}
+                  variant="primary"
+                  fullWidth
+                  onPress={() => handleScanSubmit()}
+                  disabled={scanSubmitting}
+                />
+              </>
+            )}
 
             <Button
               label="Tutup"
-              variant="primary"
+              variant="secondary"
               fullWidth
               onPress={() => setActiveQrModal(null)}
             />

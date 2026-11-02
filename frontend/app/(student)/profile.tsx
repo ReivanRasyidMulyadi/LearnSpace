@@ -241,12 +241,10 @@ export default function ProfileScreen() {
     }
   };
 
-  const studentName = user.name || "Reivan Rasyid Mulyadi";
-  const nim = "25050974182";
+  const studentName = user.name || "Mahasiswa";
+  const nim = user.user_id?.replace("user_student_", "") || "-";
   const prodi = "S1 Pendidikan Teknologi Informasi";
-  const email = user.email.includes("@mhs.unesa.ac.id")
-    ? user.email
-    : "25050974182@mhs.unesa.ac.id";
+  const email = user.email;
 
   return (
     <ScreenContainer scroll testID="profile-screen">
@@ -262,7 +260,7 @@ export default function ProfileScreen() {
             <View style={styles.roleBadge}>
               <Icon name="school" size={14} color="#FFFFFF" />
               <Text style={styles.roleBadgeText}>
-                {user.role === "ADMIN" ? "Dosen / Staff" : "Mahasiswa"}
+                {user.role === "ADMIN" ? "Guru / Dosen" : "Siswa"}
               </Text>
             </View>
             <View style={styles.nimBadge}>
@@ -312,7 +310,7 @@ export default function ProfileScreen() {
           <Text style={styles.itemLabel}>Peran Pengguna</Text>
           <View style={styles.itemValueWrap}>
             <Text style={styles.itemValue}>
-              {user.role === "ADMIN" ? "Administrator" : "Mahasiswa"}
+              {user.role === "ADMIN" ? "Guru / Dosen" : "Siswa"}
             </Text>
           </View>
         </View>

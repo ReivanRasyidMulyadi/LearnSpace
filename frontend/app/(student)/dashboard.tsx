@@ -422,84 +422,57 @@ export default function StudentDashboard() {
       ? "Selamat Sore"
       : "Selamat Malam";
 
-  const firstName = user?.name ? user.name.split(" ")[0] : "Reivan";
-  const fullName = user?.name || "REIVAN RASYID MULYADI";
+  const firstName = user?.name ? user.name.split(" ")[0] : "Mahasiswa";
+  const fullName = user?.name?.toUpperCase() || "MAHASISWA";
 
-  // 8 Layanan Akademik (Matches Screenshot 3)
+  // Layanan Akademik / Siswa
   const SERVICES: ServiceMenuItem[] = [
     {
-      id: "krs",
-      label: "KRS",
-      icon: "document-text-outline",
-      color: "#60A5FA",
-      bgColor: "rgba(37, 99, 235, 0.16)",
-      description: "Kartu Rencana Studi Semester Genap 2026/2027 telah divalidasi oleh Dosen Pembimbing Akademik dengan beban 24 SKS aktif.",
-    },
-    {
-      id: "khs",
-      label: "KHS",
-      icon: "school-outline",
-      color: "#34D399",
-      bgColor: "rgba(16, 185, 129, 0.16)",
-      description: "Kartu Hasil Studi semester sebelumnya dapat diunduh dan dilihat secara lengkap. Indeks Prestasi Kumulatif (IPK) saat ini: 3.86.",
-    },
-    {
       id: "jadwal",
-      label: "Jadwal\nKuliah",
+      label: "Jadwal\nBelajar",
       icon: "time-outline",
       color: "#93C5FD",
       bgColor: "rgba(59, 130, 246, 0.16)",
       action: () => router.push("/courses"),
-      description: "Melihat jadwal perkuliahan mingguan, kehadiran, ruang kelas, dan presensi QR.",
+      description: "Melihat jadwal pelajaran mingguan, modul pembelajaran, dan presensi kelas.",
     },
     {
       id: "status",
-      label: "Status Mhs",
+      label: "Status\nSiswa",
       icon: "id-card-outline",
       color: "#FBBF24",
       bgColor: "rgba(245, 158, 11, 0.16)",
-      description: "Status Akademik: AKTIF. Beban maksimal SKS semester depan: 24 SKS. Dosen PA: Prof. Dr. Ekohariadi, M.Pd.",
+      description: "Status Siswa: AKTIF. Terdaftar pada semester berjalan dan dapat mengakses seluruh materi pembelajaran.",
     },
     {
-      id: "aktivitas",
-      label: "Aktivitas\nMhs",
-      icon: "star-outline",
-      color: "#FBBF24",
-      bgColor: "rgba(245, 158, 11, 0.16)",
-      description: "Poin Keaktifan Mahasiswa (SKK) tercatat 42 poin. Anda telah mengikuti seminar nasional PTI dan pelatihan web mobile.",
-    },
-    {
-      id: "tep",
-      label: "TEP",
-      icon: "ribbon-outline",
-      color: "#CBD5E1",
-      bgColor: "rgba(148, 163, 184, 0.15)",
-      description: "Test of English Proficiency (TEP UNESA) terakhir: Skor 510 (LULUS standar kelulusan sarjana S1).",
-    },
-    {
-      id: "uas",
-      label: "Jadwal UAS",
+      id: "ujian",
+      label: "Jadwal\nUjian",
       icon: "calendar-outline",
       color: "#FB7185",
       bgColor: "rgba(244, 63, 94, 0.16)",
-      description: "Periode Ujian Akhir Semester (UAS) dijadwalkan pada 15 - 26 Desember 2026. Kartu ujian dapat dicetak H-7 pelaksanaan.",
+      description: "Jadwal Pre-Test dan Ujian Pembelajaran dapat diikuti pada setiap modul kelas aktif.",
     },
     {
-      id: "lainnya",
-      label: "Lainnya",
-      icon: "grid-outline",
-      color: "#94A3B8",
-      bgColor: "rgba(100, 116, 139, 0.15)",
-      description: "Layanan lainnya mencakup pengajuan beasiswa, cuti akademik, perpustakaan digital UNESA, dan portal e-learning.",
+      id: "presensi",
+      label: "Presensi\nQR",
+      icon: "qr-code-outline",
+      color: "#34D399",
+      bgColor: "rgba(16, 185, 129, 0.16)",
+      action: () => router.push("/courses"),
+      description: "Scan QR Code yang diberikan oleh guru/dosen untuk mencatat kehadiran secara langsung.",
     },
   ];
 
   const todaySubject = data?.subjects?.[0] || {
     id: "ebp",
     title: "Evaluasi Belajar dan Pembelajaran",
-    progress: 53,
-    pre_test_completed: true,
+    progress: 0,
+    pre_test_completed: false,
   };
+
+  const totalSKS = (data?.subjects?.length || 0) * 2;
+  const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const todayDay = DAYS[new Date().getDay()];
 
   return (
     <ScreenContainer scroll testID="student-dashboard">
@@ -515,7 +488,7 @@ export default function StudentDashboard() {
               <Text style={styles.nameFullSub}>{fullName}</Text>
               <View style={styles.heroBadge}>
                 <Icon name="school" size={13} color="#FFFFFF" />
-                <Text style={styles.heroBadgeText}>Mahasiswa</Text>
+                <Text style={styles.heroBadgeText}>Siswa</Text>
               </View>
             </View>
 
@@ -533,7 +506,7 @@ export default function StudentDashboard() {
               <Icon name="calendar-outline" size={18} color="#3B82F6" />
               <Text style={styles.academicLabel}>Semester Aktif</Text>
             </View>
-            <Text style={styles.academicValueRight}>2026/2027 Ganjil</Text>
+            <Text style={styles.academicValueRight}>Semester Aktif</Text>
           </View>
 
           <View style={styles.academicColsRow}>
@@ -542,7 +515,7 @@ export default function StudentDashboard() {
                 <Icon name="school-outline" size={20} color="#3B82F6" />
               </View>
               <View>
-                <Text style={styles.academicStatNum}>24</Text>
+                <Text style={styles.academicStatNum}>{totalSKS}</Text>
                 <Text style={styles.academicStatLabel}>Total SKS</Text>
               </View>
             </View>
@@ -591,7 +564,7 @@ export default function StudentDashboard() {
           <View style={styles.jadwalTitleRow}>
             <Text style={styles.sectionTitle}>Jadwal Hari Ini</Text>
             <View style={styles.dayBadge}>
-              <Text style={styles.dayBadgeText}>Senin</Text>
+              <Text style={styles.dayBadgeText}>{todayDay}</Text>
             </View>
           </View>
           <Pressable onPress={() => router.push("/courses")}>
@@ -606,25 +579,12 @@ export default function StudentDashboard() {
           testID="today-course-card"
         >
           <View style={styles.statusBadge}>
-            <Icon name="checkmark-circle" size={14} color="#10B981" />
-            <Text style={styles.statusBadgeText}>Selesai</Text>
+            <Icon name={todaySubject.pre_test_completed ? "checkmark-circle" : "time-outline"} size={14} color={todaySubject.pre_test_completed ? "#10B981" : "#F97316"} />
+            <Text style={styles.statusBadgeText}>{todaySubject.pre_test_completed ? "Aktif" : "Perlu Pre-Test"}</Text>
           </View>
 
           <View style={styles.cardTitleRow}>
             <Text style={styles.courseTitle}>{todaySubject.title}</Text>
-            <View style={styles.sksBadge}>
-              <Text style={styles.sksBadgeText}>2 SKS</Text>
-            </View>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Icon name="person-outline" size={15} color={colors.muted} />
-            <Text style={styles.metaText}>PROF. DR. EKOHARIADI, M.Pd.</Text>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Icon name="time-outline" size={15} color={colors.muted} />
-            <Text style={styles.metaText}>07:00 - 08:40 • Ruang A10.03.02</Text>
           </View>
 
           <View style={styles.progressWrap}>
