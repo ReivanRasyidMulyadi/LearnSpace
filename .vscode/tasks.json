@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "LearnSpace: backend",
+            "type": "process",
+            "command": "${workspaceFolder}\\backend\\venv\\Scripts\\python.exe",
+            "args": [
+                "-m",
+                "uvicorn",
+                "server:app",
+                "--reload",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8000"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\backend"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "Uvicorn running on http://127\\.0\\.0\\.1:8000"
+                }
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            }
+        },
+        {
+            "label": "LearnSpace: frontend",
+            "type": "shell",
+            "command": "corepack yarn web --port 8082",
+            "options": {
+                "cwd": "${workspaceFolder}\\frontend",
+                "env": {
+                    "EXPO_PUBLIC_BACKEND_URL": "http://127.0.0.1:8000"
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "Waiting on http://localhost:8082"
+                }
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            }
+        },
+        {
+            "label": "LearnSpace: start all",
+            "dependsOn": [
+                "LearnSpace: backend",
+                "LearnSpace: frontend"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        }
+    ]
+}

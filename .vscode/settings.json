@@ -1,0 +1,18 @@
+{
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/.expo/**": true
+    },
+    "java.import.exclusions": [
+        "**/node_modules/**",
+        "**/.expo/**",
+        "**/backend/venv/**"
+    ],
+    "java.import.gradle.enabled": false,
+    "java.import.maven.enabled": false,
+    "java.jdt.ls.androidSupport.enabled": "off",
+    "java.project.importOnFirstTimeStartup": "disabled",
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "netbeans.javaSupport.enabled": false,
+    "gradle.nestedProjects": false
+}

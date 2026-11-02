@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Platform, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import {
@@ -9,11 +9,9 @@ import {
   Icon,
   LoadingSpinner,
   ScreenContainer,
-  type IoniconName,
 } from "@/src/components/ui";
 import { apiFetch } from "@/src/services/api";
 import { makeStyles, radius, shadows, spacing, typography, useTheme } from "@/src/theme";
-import type { CourseProgress } from "@/src/types/test";
 
 interface PostTestQ {
   question_id: string;
@@ -25,14 +23,14 @@ interface PostTestResult {
   score: number;
   total: number;
   percentage: number;
-  review: Array<{
+  review: {
     question_id: string;
     text: string;
     options: string[];
     selected_index: number | null;
     correct_index: number;
     is_correct: boolean;
-  }>;
+  }[];
 }
 
 interface ResultsData {
@@ -332,6 +330,22 @@ const useStyles = makeStyles((colors) => ({
 
 const LETTERS = ["A", "B", "C", "D"];
 
+const MODULE_TITLES: { [key: string]: string | undefined } = {
+  materials: "Materi Pembelajaran",
+  videos: "Video Penjelasan",
+  manual_book: "Manual Book",
+  post_test: "Post-Test Akhir",
+  results: "Hasil & Sertifikat",
+};
+
+const COMPLETION_LABELS: {
+  [key: string]: { active: string; completed: string } | undefined;
+} = {
+  materials: { active: "Tandai Selesai & Lanjut", completed: "Selesai" },
+  videos: { active: "Tandai Selesai Ditonton", completed: "Video Selesai Ditonton" },
+  manual_book: { active: "Tandai Selesai Membaca", completed: "Buku Selesai Dipelajari" },
+};
+
 export default function CourseModuleScreen() {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -340,6 +354,7 @@ export default function CourseModuleScreen() {
 
   const courseId = id ?? "ebp";
   const modKey = moduleId ?? "materials";
+  const completionLabels = COMPLETION_LABELS[modKey];
 
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -439,17 +454,7 @@ export default function CourseModuleScreen() {
           <Icon name="arrow-back" size={18} color={colors.onSurface} />
         </Pressable>
         <View style={styles.headerText}>
-          <Text style={styles.title}>
-            {modKey === "materials"
-              ? "Materi Pembelajaran"
-              : modKey === "videos"
-              ? "Video Penjelasan"
-              : modKey === "manual_book"
-              ? "Manual Book"
-              : modKey === "post_test"
-              ? "Post-Test Akhir"
-              : "Hasil & Sertifikat"}
-          </Text>
+          <Text style={styles.title}>{MODULE_TITLES[modKey] ?? "Hasil & Sertifikat"}</Text>
           <Text style={styles.subtitle}>Kelas {courseId.toUpperCase()}</Text>
         </View>
       </View>
@@ -482,19 +487,6 @@ export default function CourseModuleScreen() {
               </Card>
             ))
           )}
-
-          <View style={styles.actionCard}>
-            {successToast ? (
-              <Badge label={successToast} tone="success" style={{ alignSelf: "center" }} />
-            ) : null}
-            <Button
-              label={completed ? "Selesai" : "Tandai Selesai & Lanjut"}
-              onPress={markModuleCompleted}
-              loading={loading}
-              disabled={completed}
-              leftIcon={<Icon name="checkmark-circle" size={18} color="#FFFFFF" />}
-            />
-          </View>
         </View>
       ) : null}
 
@@ -530,19 +522,6 @@ export default function CourseModuleScreen() {
               </View>
             ))
           )}
-
-          <View style={styles.actionCard}>
-            {successToast ? (
-              <Badge label={successToast} tone="success" style={{ alignSelf: "center" }} />
-            ) : null}
-            <Button
-              label={completed ? "Video Selesai Ditonton" : "Tandai Selesai Ditonton"}
-              onPress={markModuleCompleted}
-              loading={loading}
-              disabled={completed}
-              leftIcon={<Icon name="checkmark-circle" size={18} color="#FFFFFF" />}
-            />
-          </View>
         </View>
       ) : null}
 
@@ -573,19 +552,21 @@ export default function CourseModuleScreen() {
               <Text style={styles.sectionBody}>Buku panduan belum tersedia untuk mata pelajaran ini.</Text>
             </Card>
           ) : null}
+        </View>
+      ) : null}
 
-          <View style={styles.actionCard}>
-            {successToast ? (
-              <Badge label={successToast} tone="success" style={{ alignSelf: "center" }} />
-            ) : null}
-            <Button
-              label={completed ? "Buku Selesai Dipelajari" : "Tandai Selesai Membaca"}
-              onPress={markModuleCompleted}
-              loading={loading}
-              disabled={completed}
-              leftIcon={<Icon name="checkmark-circle" size={18} color="#FFFFFF" />}
-            />
-          </View>
+      {completionLabels ? (
+        <View style={styles.actionCard}>
+          {successToast ? (
+            <Badge label={successToast} tone="success" style={{ alignSelf: "center" }} />
+          ) : null}
+          <Button
+            label={completed ? completionLabels.completed : completionLabels.active}
+            onPress={markModuleCompleted}
+            loading={loading}
+            disabled={completed}
+            leftIcon={<Icon name="checkmark-circle" size={18} color="#FFFFFF" />}
+          />
         </View>
       ) : null}
 
