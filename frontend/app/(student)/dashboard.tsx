@@ -390,7 +390,6 @@ export default function StudentDashboard() {
   const router = useRouter();
 
   const [data, setData] = useState<StudentDashboardData | null>(null);
-  const [activeService, setActiveService] = useState<ServiceMenuItem | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
@@ -442,6 +441,7 @@ export default function StudentDashboard() {
       icon: "id-card-outline",
       color: "#FBBF24",
       bgColor: "rgba(245, 158, 11, 0.16)",
+      action: () => router.push("/profile"),
       description: "Status Siswa: AKTIF. Terdaftar pada semester berjalan dan dapat mengakses seluruh materi pembelajaran.",
     },
     {
@@ -450,6 +450,7 @@ export default function StudentDashboard() {
       icon: "calendar-outline",
       color: "#FB7185",
       bgColor: "rgba(244, 63, 94, 0.16)",
+      action: () => router.push("/progress"),
       description: "Jadwal Pre-Test dan Ujian Pembelajaran dapat diikuti pada setiap modul kelas aktif.",
     },
     {
@@ -542,13 +543,7 @@ export default function StudentDashboard() {
               <Pressable
                 key={s.id}
                 style={styles.serviceItem}
-                onPress={() => {
-                  if (s.action) {
-                    s.action();
-                  } else {
-                    setActiveService(s);
-                  }
-                }}
+                onPress={() => s.action?.()}
               >
                 <View style={[styles.serviceIconBox, { backgroundColor: s.bgColor }]}>
                   <Icon name={s.icon} size={22} color={s.color} />
@@ -598,34 +593,6 @@ export default function StudentDashboard() {
           </View>
         </Pressable>
       </View>
-
-      {/* Service Detail Modal */}
-      <Modal
-        visible={activeService !== null}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setActiveService(null)}
-      >
-        <Pressable style={styles.modalOverlay} onPress={() => setActiveService(null)}>
-          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
-            <View style={styles.modalHeaderRow}>
-              <View style={[styles.serviceIconBox, { backgroundColor: activeService?.bgColor, width: 44, height: 44 }]}>
-                {activeService ? (
-                  <Icon name={activeService.icon} size={22} color={activeService.color} />
-                ) : null}
-              </View>
-              <Text style={styles.modalTitle}>Layanan {activeService?.label.replace("\n", " ")}</Text>
-            </View>
-            <Text style={styles.modalDesc}>{activeService?.description}</Text>
-            <Button
-              label="Tutup"
-              variant="primary"
-              fullWidth
-              onPress={() => setActiveService(null)}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
     </ScreenContainer>
   );
 }
